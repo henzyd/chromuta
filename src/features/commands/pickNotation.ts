@@ -42,7 +42,9 @@ export async function pickNotation(
   }
 
   if (items.length === 0) {
-    void vscode.window.showWarningMessage('Chromuta: no enabled notation can represent this color.');
+    void vscode.window.showWarningMessage(
+      'Chromuta: no enabled notation can represent this color.'
+    );
     return undefined;
   }
 

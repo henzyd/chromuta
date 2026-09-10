@@ -186,7 +186,10 @@ describe('a palette swap keeps every file in its own idiom', () => {
         dialects: ALL
       });
       for (const edit of file.edits) {
-        expect(rescan.some((m) => m.text === edit.to), `${file.path}: ${edit.to}`).toBe(true);
+        expect(
+          rescan.some((m) => m.text === edit.to),
+          `${file.path}: ${edit.to}`
+        ).toBe(true);
       }
     }
   });
@@ -200,11 +203,13 @@ describe('a palette swap keeps every file in its own idiom', () => {
         dialects: ALL
       });
       const second = buildPlan(
-        [{
-          path: file.path,
-          matches,
-          formatOptions: applyStyleProfile(DEFAULT_FORMAT_OPTIONS, inferStyle(matches))
-        }],
+        [
+          {
+            path: file.path,
+            matches,
+            formatOptions: applyStyleProfile(DEFAULT_FORMAT_OPTIONS, inferStyle(matches))
+          }
+        ],
         mapping,
         0.5
       );

@@ -13,8 +13,7 @@ import type { Dialect, DialectContext, DialectPattern } from './types.js';
  * pattern, but writing a *replacement* into a bracket does, which is what the
  * `tw-` output notations are for.
  */
-const TAILWIND_FUNCTION =
-  /(?<=\[)(?:rgba?|hsla?|hwb|oklch|oklab|lch|lab)\([^\][()]*?\)(?=\])/gi;
+const TAILWIND_FUNCTION = /(?<=\[)(?:rgba?|hsla?|hwb|oklch|oklab|lch|lab)\([^\][()]*?\)(?=\])/gi;
 
 /** Underscores stand in for spaces; everything else is ordinary CSS. */
 export function decodeTailwindValue(raw: string): string {
@@ -56,9 +55,19 @@ const PATTERNS: readonly DialectPattern[] = [
 ];
 
 const LANGUAGES = new Set([
-  'html', 'vue', 'svelte', 'astro',
-  'javascript', 'javascriptreact', 'typescript', 'typescriptreact',
-  'php', 'erb', 'handlebars', 'twig', 'blade'
+  'html',
+  'vue',
+  'svelte',
+  'astro',
+  'javascript',
+  'javascriptreact',
+  'typescript',
+  'typescriptreact',
+  'php',
+  'erb',
+  'handlebars',
+  'twig',
+  'blade'
 ]);
 
 export const tailwindDialect: Dialect = {

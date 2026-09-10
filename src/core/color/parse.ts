@@ -25,7 +25,16 @@ const SUPPORTED_COLOR_SPACES = new Set([
 ]);
 
 const FUNCTION_NAMES = new Set([
-  'rgb', 'rgba', 'hsl', 'hsla', 'hwb', 'oklch', 'oklab', 'lab', 'lch', 'color'
+  'rgb',
+  'rgba',
+  'hsl',
+  'hsla',
+  'hwb',
+  'oklch',
+  'oklab',
+  'lab',
+  'lch',
+  'color'
 ]);
 
 /**
@@ -64,14 +73,18 @@ function parseHex(raw: string): Color | null {
     case 3:
     case 4: {
       const dup = (i: number): number => parseInt(digits[i]! + digits[i]!, 16) / 255;
-      r = dup(0); g = dup(1); b = dup(2);
+      r = dup(0);
+      g = dup(1);
+      b = dup(2);
       a = digits.length === 4 ? dup(3) : 1;
       break;
     }
     case 6:
     case 8: {
       const pair = (i: number): number => parseInt(digits.slice(i, i + 2), 16) / 255;
-      r = pair(0); g = pair(2); b = pair(4);
+      r = pair(0);
+      g = pair(2);
+      b = pair(4);
       a = digits.length === 8 ? pair(6) : 1;
       break;
     }
@@ -184,7 +197,11 @@ function parseColorFunction(components: string[], alpha: number, raw: string): C
     case 'srgb':
       return fromRgb({ r: x, g: y, b: z }, alpha, 'color', raw);
     case 'srgb-linear':
-      return { ok: linearRgbToOkLab({ r: x, g: y, b: z }), alpha, source: { notation: 'color', raw } };
+      return {
+        ok: linearRgbToOkLab({ r: x, g: y, b: z }),
+        alpha,
+        source: { notation: 'color', raw }
+      };
     case 'display-p3': {
       const lin = rgbToLinearRgb({ r: x, g: y, b: z });
       return fromXyzD65(linearP3ToXyzD65(lin), alpha, raw);
@@ -317,10 +334,14 @@ function parseAngle(s: string): number | null {
 
   const value = parseFloat(match[1]!);
   switch (match[2]) {
-    case 'grad': return (value * 360) / 400;
-    case 'rad': return (value * 180) / Math.PI;
-    case 'turn': return value * 360;
-    default: return value;
+    case 'grad':
+      return (value * 360) / 400;
+    case 'rad':
+      return (value * 180) / Math.PI;
+    case 'turn':
+      return value * 360;
+    default:
+      return value;
   }
 }
 

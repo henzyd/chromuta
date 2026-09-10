@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import type * as vscode from 'vscode';
 import { log } from '../logging.js';
 import type { IndexedMatch } from './positions.js';
 

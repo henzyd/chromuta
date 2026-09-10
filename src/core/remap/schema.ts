@@ -80,7 +80,12 @@ export function parseMapping(text: string): ParsedMapping {
 
   if (!root || errors.length > 0) {
     if (!root) {
-      problems.push({ offset: 0, length: Math.max(1, text.length), message: 'Not valid JSON.', severity: 'error' });
+      problems.push({
+        offset: 0,
+        length: Math.max(1, text.length),
+        message: 'Not valid JSON.',
+        severity: 'error'
+      });
     }
     return { mapping: null, problems };
   }
@@ -135,10 +140,7 @@ export function parseMapping(text: string): ParsedMapping {
   let defaultNotation: OutputNotation | undefined;
   if (raw.defaultNotation !== undefined) {
     if (!isOutputNotation(raw.defaultNotation)) {
-      fail(
-        `"defaultNotation" must be one of: ${OUTPUT_NOTATIONS.join(', ')}.`,
-        'defaultNotation'
-      );
+      fail(`"defaultNotation" must be one of: ${OUTPUT_NOTATIONS.join(', ')}.`, 'defaultNotation');
     } else {
       defaultNotation = raw.defaultNotation;
     }
@@ -199,7 +201,11 @@ export function parseMapping(text: string): ParsedMapping {
 
     let ruleTolerance: number | undefined;
     if (rule.tolerance !== undefined) {
-      if (typeof rule.tolerance !== 'number' || !Number.isFinite(rule.tolerance) || rule.tolerance < 0) {
+      if (
+        typeof rule.tolerance !== 'number' ||
+        !Number.isFinite(rule.tolerance) ||
+        rule.tolerance < 0
+      ) {
         fail('Rule "tolerance" must be a number of 0 or more.', 'rules', i, 'tolerance');
         ok = false;
       } else {

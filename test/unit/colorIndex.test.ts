@@ -66,7 +66,11 @@ describe('ordering', () => {
     });
 
     const entry = index.groups(0.5).palette[0]!;
-    expect(entry.occurrences.map((o) => o.uri.fsPath)).toEqual(['/w/a.css', '/w/b.css', '/w/b.css']);
+    expect(entry.occurrences.map((o) => o.uri.fsPath)).toEqual([
+      '/w/a.css',
+      '/w/b.css',
+      '/w/b.css'
+    ]);
     expect(entry.occurrences[1]!.match.start).toBeLessThan(entry.occurrences[2]!.match.start);
   });
 });

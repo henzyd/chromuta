@@ -1,0 +1,8 @@
+dist/
+out/
+node_modules/
+package-lock.json
+*.vsix
+assets/*.png
+# Fixture files are formatted the way the tests expect to find them.
+examples/

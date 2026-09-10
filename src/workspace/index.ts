@@ -166,8 +166,7 @@ function toEntries(buckets: Map<string, Occurrence[]>): PaletteEntry[] {
 
   for (const [key, occurrences] of buckets) {
     occurrences.sort(
-      (a, b) =>
-        a.uri.fsPath.localeCompare(b.uri.fsPath) || a.match.start - b.match.start
+      (a, b) => a.uri.fsPath.localeCompare(b.uri.fsPath) || a.match.start - b.match.start
     );
     const files = new Set(occurrences.map((o) => o.uri.toString()));
     entries.push({

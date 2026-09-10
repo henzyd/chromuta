@@ -10,7 +10,8 @@ function compile(json: string) {
   return compileMapping(mapping);
 }
 
-const resolve = (literal: string, json: string) => resolveColor(parseColor(literal)!, compile(json));
+const resolve = (literal: string, json: string) =>
+  resolveColor(parseColor(literal)!, compile(json));
 
 describe('exact matching', () => {
   const mapping = '{"version":1,"tolerance":0,"rules":[{"from":"#3b82f6","to":"#2563eb"}]}';

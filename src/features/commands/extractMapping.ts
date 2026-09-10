@@ -17,7 +17,9 @@ import { runWorkspaceScan } from './scanWorkspace.js';
 export async function extractMapping(index: ColorIndex, cache: ScanCache): Promise<void> {
   const uri = mappingUri();
   if (!uri) {
-    void vscode.window.showInformationMessage('Chromuta: open a folder before extracting a mapping.');
+    void vscode.window.showInformationMessage(
+      'Chromuta: open a folder before extracting a mapping.'
+    );
     return;
   }
 

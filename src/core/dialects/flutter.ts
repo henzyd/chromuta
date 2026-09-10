@@ -1,12 +1,7 @@
 import type { Color } from '../color/types.js';
 import { colorFromRgb } from '../color/parse.js';
 import type { Dialect, DialectContext, DialectPattern } from './types.js';
-import {
-  parseArgbDigits,
-  positionalArguments,
-  toByteChannel,
-  toNumber
-} from './shared.js';
+import { parseArgbDigits, positionalArguments, toByteChannel, toNumber } from './shared.js';
 
 /** `Color(0xFF3B82F6)`, including a `const` or `static const` in front. */
 const DART_COLOR = /\bColor\(\s*0[xX](?:[0-9a-fA-F]{8}|[0-9a-fA-F]{6})\s*\)/g;

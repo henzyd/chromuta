@@ -1,15 +1,6 @@
 /** CSS notations Chromuta can read or write. */
 export type CssNotation =
-  | 'hex'
-  | 'rgb'
-  | 'hsl'
-  | 'hwb'
-  | 'oklch'
-  | 'oklab'
-  | 'lab'
-  | 'lch'
-  | 'named'
-  | 'color';
+  'hex' | 'rgb' | 'hsl' | 'hwb' | 'oklch' | 'oklab' | 'lab' | 'lch' | 'named' | 'color';
 
 /**
  * Notations belonging to a specific platform rather than to CSS.
@@ -50,13 +41,28 @@ export type AnyOutputNotation = OutputNotation | DialectOutputNotation;
 
 /** The same sets at runtime, for validating user-supplied values. */
 export const OUTPUT_NOTATIONS: readonly OutputNotation[] = [
-  'hex', 'rgb', 'hsl', 'oklch', 'oklab', 'lab', 'lch', 'named'
+  'hex',
+  'rgb',
+  'hsl',
+  'oklch',
+  'oklab',
+  'lab',
+  'lch',
+  'named'
 ];
 
 export const DIALECT_OUTPUT_NOTATIONS: readonly DialectOutputNotation[] = [
-  'dart-color', 'dart-argb', 'dart-rgbo', 'argb-hex', 'android-hex',
-  'swift-uicolor', 'swift-nscolor', 'swift-color',
-  'tw-rgb', 'tw-hsl', 'tw-oklch'
+  'dart-color',
+  'dart-argb',
+  'dart-rgbo',
+  'argb-hex',
+  'android-hex',
+  'swift-uicolor',
+  'swift-nscolor',
+  'swift-color',
+  'tw-rgb',
+  'tw-hsl',
+  'tw-oklch'
 ];
 
 export const ALL_OUTPUT_NOTATIONS: readonly AnyOutputNotation[] = [
@@ -69,7 +75,9 @@ export function isOutputNotation(value: unknown): value is OutputNotation {
 }
 
 export function isDialectNotation(value: unknown): value is DialectOutputNotation {
-  return typeof value === 'string' && (DIALECT_OUTPUT_NOTATIONS as readonly string[]).includes(value);
+  return (
+    typeof value === 'string' && (DIALECT_OUTPUT_NOTATIONS as readonly string[]).includes(value)
+  );
 }
 
 export function isAnyOutputNotation(value: unknown): value is AnyOutputNotation {

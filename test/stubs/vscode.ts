@@ -61,5 +61,8 @@ export const workspace = {
     return value.replace(/^\/?workspace\//, '');
   },
   textDocuments: [] as unknown[],
-  getConfiguration: () => ({ get: (_key: string, fallback: unknown) => fallback, inspect: () => undefined })
+  getConfiguration: () => ({
+    get: (_key: string, fallback: unknown) => fallback,
+    inspect: () => undefined
+  })
 };

@@ -19,14 +19,22 @@ export function formatColor(
   const opts: FormatOptions = { ...DEFAULT_FORMAT_OPTIONS, ...options };
 
   switch (notation) {
-    case 'hex': return formatHex(color, opts);
-    case 'rgb': return formatRgb(color, opts);
-    case 'hsl': return formatHsl(color, opts);
-    case 'oklch': return formatOklch(color, opts);
-    case 'oklab': return formatOklab(color, opts);
-    case 'lab': return formatLab(color, opts);
-    case 'lch': return formatLch(color, opts);
-    case 'named': return formatNamed(color);
+    case 'hex':
+      return formatHex(color, opts);
+    case 'rgb':
+      return formatRgb(color, opts);
+    case 'hsl':
+      return formatHsl(color, opts);
+    case 'oklch':
+      return formatOklch(color, opts);
+    case 'oklab':
+      return formatOklab(color, opts);
+    case 'lab':
+      return formatLab(color, opts);
+    case 'lch':
+      return formatLch(color, opts);
+    case 'named':
+      return formatNamed(color);
   }
 }
 
@@ -36,7 +44,8 @@ export function formatColor(
  * conversion command warns instead of silently mangling the value.
  */
 export function isLossyConversion(color: Color, notation: OutputNotation): boolean {
-  const boundToSrgb = notation === 'hex' || notation === 'rgb' || notation === 'hsl' || notation === 'named';
+  const boundToSrgb =
+    notation === 'hex' || notation === 'rgb' || notation === 'hsl' || notation === 'named';
   return boundToSrgb && !isInSrgbGamut(color.ok);
 }
 
@@ -46,13 +55,19 @@ export function isLossyConversion(color: Color, notation: OutputNotation): boole
 
 function formatHex(color: Color, opts: FormatOptions): string {
   const rgb = clampToSrgbGamut(color.ok);
-  const byte = (v: number): string => Math.round(v * 255).toString(16).padStart(2, '0');
+  const byte = (v: number): string =>
+    Math.round(v * 255)
+      .toString(16)
+      .padStart(2, '0');
 
   let hex = byte(rgb.r) + byte(rgb.g) + byte(rgb.b);
   if (color.alpha < 1) hex += byte(color.alpha);
 
   if (opts.shorthandHex && canShorten(hex)) {
-    hex = hex.split('').filter((_, i) => i % 2 === 0).join('');
+    hex = hex
+      .split('')
+      .filter((_, i) => i % 2 === 0)
+      .join('');
   }
 
   return '#' + (opts.hexCase === 'upper' ? hex.toUpperCase() : hex);
@@ -133,7 +148,10 @@ function formatNamed(color: Color): string | null {
   if (!isInSrgbGamut(color.ok)) return null;
 
   const rgb = clampToSrgbGamut(color.ok);
-  const byte = (v: number): string => Math.round(v * 255).toString(16).padStart(2, '0');
+  const byte = (v: number): string =>
+    Math.round(v * 255)
+      .toString(16)
+      .padStart(2, '0');
   return nameForHex(byte(rgb.r) + byte(rgb.g) + byte(rgb.b)) ?? null;
 }
 

@@ -99,18 +99,26 @@ export function labelledArguments(inner: string): Map<string, string> {
 
 /** Split a positional argument list on commas. */
 export function positionalArguments(inner: string): string[] {
-  return inner.split(',').map((part) => part.trim()).filter((part) => part.length > 0);
+  return inner
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
 }
 
 /** HSV, which is what Swift calls hue/saturation/brightness. Not HSL. */
 export function hsvToRgb(h: number, s: number, v: number): { r: number; g: number; b: number } {
-  const sector = ((h % 1) + 1) % 1 * 6;
+  const sector = (((h % 1) + 1) % 1) * 6;
   const c = v * s;
   const x = c * (1 - Math.abs((sector % 2) - 1));
   const m = v - c;
 
   const table: [number, number, number][] = [
-    [c, x, 0], [x, c, 0], [0, c, x], [0, x, c], [x, 0, c], [c, 0, x]
+    [c, x, 0],
+    [x, c, 0],
+    [0, c, x],
+    [0, x, c],
+    [x, 0, c],
+    [c, 0, x]
   ];
   const [r, g, b] = table[Math.min(5, Math.floor(sector))]!;
   return { r: r + m, g: g + m, b: b + m };

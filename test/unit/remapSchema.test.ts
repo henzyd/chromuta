@@ -8,10 +8,14 @@ const pointsAt = (text: string, index = 0): string => {
 };
 
 const errors = (text: string): string[] =>
-  parseMapping(text).problems.filter((p) => p.severity === 'error').map((p) => p.message);
+  parseMapping(text)
+    .problems.filter((p) => p.severity === 'error')
+    .map((p) => p.message);
 
 const warnings = (text: string): string[] =>
-  parseMapping(text).problems.filter((p) => p.severity === 'warning').map((p) => p.message);
+  parseMapping(text)
+    .problems.filter((p) => p.severity === 'warning')
+    .map((p) => p.message);
 
 describe('valid mappings', () => {
   it('accepts the documented shape', () => {
@@ -48,8 +52,9 @@ describe('valid mappings', () => {
   });
 
   it('defaults the tolerance when it is absent', () => {
-    expect(parseMapping('{"version":1,"rules":[{"from":"#000","to":"#fff"}]}').mapping!.tolerance)
-      .toBe(DEFAULT_TOLERANCE);
+    expect(
+      parseMapping('{"version":1,"rules":[{"from":"#000","to":"#fff"}]}').mapping!.tolerance
+    ).toBe(DEFAULT_TOLERANCE);
   });
 
   it('reads every color notation in from and to', () => {
@@ -144,14 +149,16 @@ describe('rule errors point at the offending value', () => {
 
 describe('rule conflicts', () => {
   it('rejects two rules with the same from color, however written', () => {
-    const text = '{"version":1,"rules":[{"from":"#fff","to":"#000"},{"from":"#FFFFFF","to":"#111"}]}';
+    const text =
+      '{"version":1,"rules":[{"from":"#fff","to":"#000"},{"from":"#FFFFFF","to":"#111"}]}';
     expect(errors(text)[0]).toContain('Duplicate "from" color');
     expect(pointsAt(text)).toBe('"#FFFFFF"');
   });
 
   it('warns when two rules sit inside each other tolerance', () => {
     // These two blues are about 0.005 apart in OKLab, well inside the 0.02 default.
-    const text = '{"version":1,"rules":[{"from":"#3b82f6","to":"#000"},{"from":"#3d84f8","to":"#111"}]}';
+    const text =
+      '{"version":1,"rules":[{"from":"#3b82f6","to":"#000"},{"from":"#3d84f8","to":"#111"}]}';
     const warning = warnings(text)[0]!;
     expect(warning).toContain('within tolerance of');
     expect(warning).toContain('ambiguous');

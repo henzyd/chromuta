@@ -9,10 +9,14 @@ import type { ChromutaConfig } from '../../src/config.js';
 
 function fill(index: ColorIndex, files: number, colorsPerFile: number): void {
   for (let f = 0; f < files; f++) {
-    const text = Array.from({ length: colorsPerFile }, (_, i) =>
-      `.c${i}{color:#${(i % 16).toString(16).repeat(6)}}`
+    const text = Array.from(
+      { length: colorsPerFile },
+      (_, i) => `.c${i}{color:#${(i % 16).toString(16).repeat(6)}}`
     ).join('\n');
-    index.set(vscode.Uri.file(`/w/f${f}.css`), withPositions(scanText(text, { languageId: 'css' }), text));
+    index.set(
+      vscode.Uri.file(`/w/f${f}.css`),
+      withPositions(scanText(text, { languageId: 'css' }), text)
+    );
   }
 }
 
@@ -54,7 +58,10 @@ describe('palette grouping is memoized', () => {
 
     const before = index.groupComputationCount;
     const text = 'a{color:#123456}';
-    index.set(vscode.Uri.file('/w/new.css'), withPositions(scanText(text, { languageId: 'css' }), text));
+    index.set(
+      vscode.Uri.file('/w/new.css'),
+      withPositions(scanText(text, { languageId: 'css' }), text)
+    );
     index.groups(0.5);
     expect(index.groupComputationCount).toBe(before + 1);
   });
@@ -64,21 +71,24 @@ describe('palette grouping is memoized', () => {
     fill(index, 5, 5);
     index.groups(0.5);
 
-    let expected = index.groupComputationCount;
+    const baseline = index.groupComputationCount;
 
     index.delete(vscode.Uri.file('/w/f0.css'));
     index.groups(0.5);
-    expect(index.groupComputationCount).toBe(++expected);
+    expect(index.groupComputationCount).toBe(baseline + 1);
 
     index.clear();
     index.groups(0.5);
-    expect(index.groupComputationCount).toBe(++expected);
+    expect(index.groupComputationCount).toBe(baseline + 2);
   });
 
   it('still returns correct results from the cache', () => {
     const index = new ColorIndex();
     const text = 'a{color:#fff}b{color:#fff}c{color:#000}';
-    index.set(vscode.Uri.file('/w/a.css'), withPositions(scanText(text, { languageId: 'css' }), text));
+    index.set(
+      vscode.Uri.file('/w/a.css'),
+      withPositions(scanText(text, { languageId: 'css' }), text)
+    );
 
     const first = index.groups(0.5);
     const second = index.groups(0.5);
@@ -157,7 +167,9 @@ describe('document scans are memoized by version', () => {
 
   it('bounds its own size so a long session cannot grow it without limit', () => {
     clearDocumentScanCache();
-    const docs = Array.from({ length: 20 }, (_, i) => fakeDocument(`/w/n${i}.css`, 'a{color:#fff}', 1));
+    const docs = Array.from({ length: 20 }, (_, i) =>
+      fakeDocument(`/w/n${i}.css`, 'a{color:#fff}', 1)
+    );
     for (const doc of docs) scanDocument(doc as never, config);
 
     // The earliest entries have been evicted, so re-scanning one reads again.

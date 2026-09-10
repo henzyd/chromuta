@@ -2,7 +2,12 @@ import { isAnyOutputNotation, type AnyOutputNotation, type FormatOptions } from 
 import { dialectOf } from '../dialects/registry.js';
 import { formatAny, isLossyAny } from '../notation.js';
 import type { ColorMatch } from '../detect/types.js';
-import { resolveColor, type CompiledMapping, type CompiledRule, type Replacement } from './resolve.js';
+import {
+  resolveColor,
+  type CompiledMapping,
+  type CompiledRule,
+  type Replacement
+} from './resolve.js';
 
 export interface PlannedEdit<M extends ColorMatch = ColorMatch> {
   readonly match: M;
@@ -201,13 +206,13 @@ export function describePlan<M extends ColorMatch>(plan: ChangePlan<M>): string 
     `${plan.editCount} replacement${plan.editCount === 1 ? '' : 's'} in ${plan.fileCount} file${plan.fileCount === 1 ? '' : 's'}`
   ];
 
-  const approximate = plan.files
-    .flatMap((file) => file.edits)
-    .filter((edit) => !edit.exact).length;
+  const approximate = plan.files.flatMap((file) => file.edits).filter((edit) => !edit.exact).length;
 
   if (approximate > 0) parts.push(`${approximate} matched within tolerance`);
-  if (plan.ambiguities.length > 0) parts.push(`${plan.ambiguities.length} ambiguous, left unchanged`);
-  if (plan.counts.lowConfidence > 0) parts.push(`${plan.counts.lowConfidence} low-confidence, skipped`);
+  if (plan.ambiguities.length > 0)
+    parts.push(`${plan.ambiguities.length} ambiguous, left unchanged`);
+  if (plan.counts.lowConfidence > 0)
+    parts.push(`${plan.counts.lowConfidence} low-confidence, skipped`);
   if (plan.counts.excluded > 0) parts.push(`${plan.counts.excluded} in excluded files`);
   if (plan.lossyCount > 0) parts.push(`${plan.lossyCount} clamped to sRGB`);
 

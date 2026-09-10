@@ -69,7 +69,9 @@ export async function convertColorEverywhere(
   const { edit, count } = buildEdit(current, choice.notation, config);
 
   if (count === 0) {
-    void vscode.window.showInformationMessage('Chromuta: every occurrence is already in that notation.');
+    void vscode.window.showInformationMessage(
+      'Chromuta: every occurrence is already in that notation.'
+    );
     return;
   }
 
@@ -125,7 +127,9 @@ async function collectCurrentOccurrences(
 
       if (matches.length > 0) results.push({ uri, matches });
     } catch (error) {
-      log(`convertEverywhere: skipped ${uri.fsPath}: ${error instanceof Error ? error.message : String(error)}`);
+      log(
+        `convertEverywhere: skipped ${uri.fsPath}: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
   }
 

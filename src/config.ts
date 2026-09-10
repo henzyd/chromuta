@@ -1,15 +1,39 @@
 import * as vscode from 'vscode';
-import { DEFAULT_FORMAT_OPTIONS, type FormatOptions, type OutputNotation } from './core/color/types.js';
+import {
+  DEFAULT_FORMAT_OPTIONS,
+  type FormatOptions,
+  type OutputNotation
+} from './core/color/types.js';
 import { isDialectId, type DialectId } from './core/dialects/types.js';
 
 /** Languages Chromuta scans and offers conversions in. */
 export const SUPPORTED_LANGUAGES: readonly string[] = [
-  'css', 'scss', 'less', 'sass', 'postcss', 'stylus',
-  'html', 'vue', 'svelte', 'astro',
-  'javascript', 'javascriptreact', 'typescript', 'typescriptreact',
-  'json', 'jsonc', 'yaml', 'markdown', 'xml',
+  'css',
+  'scss',
+  'less',
+  'sass',
+  'postcss',
+  'stylus',
+  'html',
+  'vue',
+  'svelte',
+  'astro',
+  'javascript',
+  'javascriptreact',
+  'typescript',
+  'typescriptreact',
+  'json',
+  'jsonc',
+  'yaml',
+  'markdown',
+  'xml',
   // Platform dialects.
-  'dart', 'swift', 'objective-c', 'objective-cpp', 'kotlin', 'java'
+  'dart',
+  'swift',
+  'objective-c',
+  'objective-cpp',
+  'kotlin',
+  'java'
 ];
 
 export interface ChromutaConfig {
@@ -36,7 +60,12 @@ export interface ChromutaConfig {
 }
 
 const FORMAT_KEYS: readonly (keyof FormatOptions)[] = [
-  'hexCase', 'shorthandHex', 'functionSyntax', 'alphaStyle', 'precision', 'spaceAfterComma'
+  'hexCase',
+  'shorthandHex',
+  'functionSyntax',
+  'alphaStyle',
+  'precision',
+  'spaceAfterComma'
 ];
 
 export function readConfig(scope?: vscode.Uri): ChromutaConfig {
@@ -61,7 +90,9 @@ export function readConfig(scope?: vscode.Uri): ChromutaConfig {
     format,
     formatOverrides: overrides,
     documentColorExcludeLanguages: cfg.get<string[]>('documentColor.excludeLanguages', [
-      'css', 'scss', 'less'
+      'css',
+      'scss',
+      'less'
     ]),
     include: cfg.get<string>('include', '**/*.css'),
     exclude: cfg.get<string[]>('exclude', ['**/node_modules/**']),
@@ -91,9 +122,10 @@ function isExplicitlySet(cfg: vscode.WorkspaceConfiguration, section: string): b
 /** Language selector for the color provider, honoring the exclusion list. */
 export function colorProviderSelector(config: ChromutaConfig): vscode.DocumentSelector {
   const excluded = new Set(config.documentColorExcludeLanguages);
-  return SUPPORTED_LANGUAGES
-    .filter((language) => !excluded.has(language))
-    .map((language) => ({ language, scheme: 'file' as const }));
+  return SUPPORTED_LANGUAGES.filter((language) => !excluded.has(language)).map((language) => ({
+    language,
+    scheme: 'file' as const
+  }));
 }
 
 /**

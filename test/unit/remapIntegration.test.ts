@@ -83,9 +83,7 @@ describe('remapping the example files', () => {
   });
 
   it('catches the oklch approximation of the brand blue via tolerance', () => {
-    const approximate = plan.files
-      .flatMap((f) => f.edits)
-      .filter((edit) => !edit.exact);
+    const approximate = plan.files.flatMap((f) => f.edits).filter((edit) => !edit.exact);
 
     expect(approximate.length).toBeGreaterThan(0);
     // theme.scss writes oklch(0.623 0.214 259.8), a shade off from #3b82f6.
@@ -108,7 +106,10 @@ describe('remapping the example files', () => {
     expect(after).toContain('#1e40af');
 
     const scss = texts.get('theme.scss')!;
-    const scssAfter = applyEditsToText(scss, plan.files.find((f) => f.path === 'theme.scss')!.edits);
+    const scssAfter = applyEditsToText(
+      scss,
+      plan.files.find((f) => f.path === 'theme.scss')!.edits
+    );
     expect(scssAfter).toContain('hsl(215 20% 65%)');
   });
 
@@ -136,7 +137,13 @@ describe('remapping the example files', () => {
       const once = applyEditsToText(texts.get(file.path)!, file.edits);
       const matches = scanText(once, { languageId: 'css', filePath: file.path });
       const second = buildPlan(
-        [{ path: file.path, matches, formatOptions: applyStyleProfile(DEFAULT_FORMAT_OPTIONS, inferStyle(matches)) }],
+        [
+          {
+            path: file.path,
+            matches,
+            formatOptions: applyStyleProfile(DEFAULT_FORMAT_OPTIONS, inferStyle(matches))
+          }
+        ],
         compiled!,
         0.5
       );

@@ -36,10 +36,7 @@ export interface DocumentScan {
  * forty uppercase hex values keeps producing uppercase hex regardless of the global
  * default.
  */
-export function scanDocument(
-  document: vscode.TextDocument,
-  config: ChromutaConfig
-): DocumentScan {
+export function scanDocument(document: vscode.TextDocument, config: ChromutaConfig): DocumentScan {
   const key = document.uri.toString();
   const cached = cache.get(key);
   if (cached && cached.version === document.version) return cached.scan;
