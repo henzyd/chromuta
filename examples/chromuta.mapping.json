@@ -1,0 +1,22 @@
+{
+  // Demo palette mapping. Open the `examples/` folder as your workspace, run
+  // "Chromuta: Scan Workspace for Colors", then "Chromuta: Apply Palette Mapping".
+  //
+  // A tolerance of 0.02 is about a just-noticeable difference in OKLab. It is set
+  // here so the oklch() approximation of the brand blue in theme.scss, which is a
+  // shade off from #3b82f6, is caught by the same rule.
+  "version": 1,
+  "tolerance": 0.02,
+
+  "exclude": [
+    "**/__snapshots__/**",
+    "**/*.test.*"
+  ],
+
+  "rules": [
+    { "from": "#3b82f6", "to": "#2563eb" }, // brand blue, darkened
+    { "from": "#fff",    "to": "#f8fafc" }, // pure white to a warm surface
+    { "from": "tomato",  "to": "#ef4444" }, // keyword to an explicit value
+    { "from": "#0f172a", "to": "#111827" }  // ink
+  ]
+}
