@@ -1,5 +1,8 @@
 # Chromuta
 
+[![CI](https://github.com/henzyd/chromuta/actions/workflows/ci.yml/badge.svg)](https://github.com/henzyd/chromuta/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 A VS Code extension that finds hard-coded color literals and converts them between
 notations. See [ARCHITECTURE.md](ARCHITECTURE.md) for the full design.
 
@@ -38,12 +41,12 @@ display-p3 and XYZ, all 148 named colors, and `transparent`.
 applies only to files of its own languages, so leaving them on costs nothing in a
 project that uses none of them.
 
-| Dialect | Reads |
-|---|---|
-| `flutter` | `Color(0xFF3B82F6)`, `Color.fromARGB(…)`, `Color.fromRGBO(…)`, bare `0x…` integers |
-| `swift` | `UIColor(red:…)`, `NSColor(red:…)`, SwiftUI `Color(red:…)`, `UIColor(white:…)`, `UIColor(hue:…)` |
-| `android` | Alpha-first `#AARRGGBB` and `#ARGB` in resource files, plus `0x…` in Kotlin and Java |
-| `tailwind` | Underscore-separated values inside arbitrary-value brackets, e.g. `text-[rgb(0_0_0)]` |
+| Dialect    | Reads                                                                                            |
+| ---------- | ------------------------------------------------------------------------------------------------ |
+| `flutter`  | `Color(0xFF3B82F6)`, `Color.fromARGB(…)`, `Color.fromRGBO(…)`, bare `0x…` integers               |
+| `swift`    | `UIColor(red:…)`, `NSColor(red:…)`, SwiftUI `Color(red:…)`, `UIColor(white:…)`, `UIColor(hue:…)` |
+| `android`  | Alpha-first `#AARRGGBB` and `#ARGB` in resource files, plus `0x…` in Kotlin and Java             |
+| `tailwind` | Underscore-separated values inside arbitrary-value brackets, e.g. `text-[rgb(0_0_0)]`            |
 
 A conversion stays in the idiom of the file it is in. Converting a Flutter
 `Color(0xFF3B82F6)` offers the other Flutter forms first, and a palette mapping applied
@@ -99,29 +102,40 @@ them. Everything else goes to "Needs review".
 
 ```bash
 npm install
-npm test          # 329 unit tests, no extension host needed
-npm run compile   # typecheck
+npm run check     # format, lint, types, 329 tests, build, and a bundle smoke test
 npm run watch     # esbuild watch, then F5 to launch
 ```
 
-The color engine under `src/core/` never imports `vscode`, which is why the tests run
-in milliseconds and why the engine can later back a CLI. `src/workspace/` is the
-editor-aware layer; its tests use a small `vscode` stub aliased in by vitest.
+The colour engine under `src/core/` never imports `vscode`, which is why the tests run
+in milliseconds and why the engine could later back a command-line tool. That boundary
+is enforced by a lint rule. `src/workspace/` is the editor-aware layer, and its tests use
+a small `vscode` stub aliased in by vitest.
 
-Adding a dialect means one file under `src/core/dialects/`: a set of regexes, a parser,
-a formatter, and a predicate saying which files it applies to. Nothing else changes.
+Adding a dialect means one file under `src/core/dialects/`: a set of regexes, a parser, a
+formatter, and a predicate saying which files it applies to. Nothing else changes.
 
 Open the `examples/` folder in the Extension Development Host, then run
-`Chromuta: Scan Workspace for Colors`. `demo.css` covers the out-of-gamut warning and
-the near-misses that are correctly ignored; `theme.scss` shares a color with it so the
-palette has something to collapse across files. The folder also ships a
-`chromuta.mapping.json`, so `Chromuta: Apply Palette Mapping` works there immediately;
-one of its rules is matched only by tolerance, not exactly.
+`Chromuta: Scan Workspace for Colors`. It holds one file per dialect, including a
+`logo.svg` and an Android `colors.xml` carrying the same eight-digit hex so the two
+readings sit side by side, plus deliberate near-misses that should be ignored. Two
+end-to-end tests run the whole pipeline over those same files.
 
-The folder also holds one example per dialect: `theme.dart`, `Theme.swift`,
-`res/values/colors.xml`, `tailwind.html`, and a `logo.svg` carrying the same eight-digit
-hex as the Android file to show the two readings side by side.
+To try the real packaged artefact rather than the development host:
 
-Two end-to-end tests run the whole pipeline over those real files, including that a
-palette swap keeps each of the five idioms intact and that applying it twice changes
-nothing the second time.
+```bash
+npm run package && code --install-extension chromuta.vsix
+```
+
+## Contributing
+
+Contributions are welcome. [CONTRIBUTING.md](CONTRIBUTING.md) covers setup, how the
+codebase is arranged, what a good test looks like here, and the two mistakes that have
+already bitten this project when adding a dialect.
+
+Bugs and ideas belong in [Issues](https://github.com/henzyd/chromuta/issues). Security
+problems go through [SECURITY.md](SECURITY.md) instead, never the public tracker. Taking
+part means agreeing to the [Code of Conduct](CODE_OF_CONDUCT.md).
+
+## License
+
+[MIT](LICENSE)

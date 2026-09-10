@@ -1,0 +1,51 @@
+name: Feature request
+description: Suggest a capability or a change in behaviour
+labels: ['enhancement', 'needs triage']
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: |
+        What are you trying to do that is awkward or impossible today? Describe the
+        situation rather than the solution, so there is room to find a better one.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you have in mind
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of request
+      options:
+        - A colour notation Chromuta should read or write
+        - A platform dialect, for example a language it does not cover yet
+        - A change to detection or confidence scoring
+        - Palette mapping
+        - A new command or editor surface
+        - A setting
+        - Something else
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: Concrete examples
+      description: |
+        For a notation or dialect, paste real literals as they appear in code, and say
+        what they should convert to and from. Ambiguity matters: if the same characters
+        can mean two different colours depending on context, say so.
+      render: text
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you have tried or considered
+      description: Including whether an existing setting nearly does it.
