@@ -397,9 +397,9 @@
   "devDependencies": {
     "@types/node": "^20.11.30",
     "@types/vscode": "^1.85.0",
-    "esbuild": "^0.20.2",
+    "esbuild": "^0.28.2",
     "typescript": "^5.4.3",
-    "vitest": "^1.4.0"
+    "vitest": "^5.0.0"
   },
   "dependencies": {
     "jsonc-parser": "^3.3.1"
