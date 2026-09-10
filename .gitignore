@@ -1,8 +1,32 @@
+# Dependencies
 node_modules/
-dist/
+
+# Compiled output
 out/
+dist/
+
+# VS Code test runner
+.vscode-test/
+
+# Packaged extension
 *.vsix
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test coverage
+coverage/
+
+# TypeScript
+*.tsbuildinfo
+
+# OS
 .DS_Store
+Thumbs.db
 
 .vscode/*
 !.vscode/launch.json
