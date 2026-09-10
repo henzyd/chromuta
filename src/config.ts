@@ -22,6 +22,11 @@ export interface ChromutaConfig {
    */
   readonly formatOverrides: ReadonlySet<keyof FormatOptions>;
   readonly documentColorExcludeLanguages: readonly string[];
+  readonly include: string;
+  readonly exclude: readonly string[];
+  readonly maxFiles: number;
+  readonly cacheEnabled: boolean;
+  readonly hoverEnabled: boolean;
 }
 
 const FORMAT_KEYS: readonly (keyof FormatOptions)[] = [
@@ -51,7 +56,12 @@ export function readConfig(scope?: vscode.Uri): ChromutaConfig {
     formatOverrides: overrides,
     documentColorExcludeLanguages: cfg.get<string[]>('documentColor.excludeLanguages', [
       'css', 'scss', 'less'
-    ])
+    ]),
+    include: cfg.get<string>('include', '**/*.css'),
+    exclude: cfg.get<string[]>('exclude', ['**/node_modules/**']),
+    maxFiles: cfg.get<number>('maxFiles', 20000),
+    cacheEnabled: cfg.get<boolean>('cache.enabled', true),
+    hoverEnabled: cfg.get<boolean>('hover.enabled', true)
   };
 }
 
@@ -75,4 +85,26 @@ export function colorProviderSelector(config: ChromutaConfig): vscode.DocumentSe
   return SUPPORTED_LANGUAGES
     .filter((language) => !excluded.has(language))
     .map((language) => ({ language, scheme: 'file' as const }));
+}
+
+/**
+ * Compose the exclude glob for a workspace scan.
+ *
+ * `findFiles` applies the user's `files.exclude` and `search.exclude` only when the
+ * exclude argument is omitted. Passing our own would silently drop those, so they are
+ * merged in here instead.
+ */
+export function buildExcludeGlob(config: ChromutaConfig): string | null {
+  const patterns = new Set<string>(config.exclude);
+
+  for (const section of ['files.exclude', 'search.exclude']) {
+    const entries = vscode.workspace.getConfiguration().get<Record<string, boolean>>(section);
+    if (!entries) continue;
+    for (const [pattern, enabled] of Object.entries(entries)) {
+      if (enabled) patterns.add(pattern);
+    }
+  }
+
+  if (patterns.size === 0) return null;
+  return `{${[...patterns].join(',')}}`;
 }
