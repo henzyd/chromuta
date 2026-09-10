@@ -36,12 +36,12 @@ jobs:
           echo "::error::Releases run from main only. This ref is ${{ github.ref }}."
           exit 1
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           # Tags are needed to tell whether this version was already released.
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: npm
@@ -96,7 +96,7 @@ jobs:
         run: npm run package
 
       - name: Upload the package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: chromuta-${{ steps.version.outputs.version }}
           path: chromuta.vsix
