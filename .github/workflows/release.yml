@@ -1,0 +1,167 @@
+name: Release
+
+# Manual only. The version is not bumped here: bump it in package.json and add its
+# CHANGELOG section through a normal pull request, then run this. That keeps the
+# release reviewable and means this workflow never has to push to a protected branch.
+on:
+  workflow_dispatch:
+    inputs:
+      publish_marketplace:
+        description: Publish to the Visual Studio Marketplace
+        type: boolean
+        default: true
+      publish_openvsx:
+        description: Publish to Open VSX (Cursor, Windsurf, VSCodium)
+        type: boolean
+        default: true
+      dry_run:
+        description: Build and verify only. No tag, no release, no publish.
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: write
+    steps:
+      - name: Refuse to release from anywhere but main
+        if: github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::Releases run from main only. This ref is ${{ github.ref }}."
+          exit 1
+
+      - uses: actions/checkout@v4
+        with:
+          # Tags are needed to tell whether this version was already released.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Read the version being released
+        id: version
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          echo "Releasing $version"
+
+      - name: Refuse to reuse a version
+        run: |
+          tag="${{ steps.version.outputs.tag }}"
+          if git rev-parse "$tag" >/dev/null 2>&1; then
+            echo "::error::$tag already exists. Marketplace versions cannot be reused; bump the version first."
+            exit 1
+          fi
+
+      - name: Require a changelog entry
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          if ! grep -q "^## \[$version\]" CHANGELOG.md; then
+            echo "::error::CHANGELOG.md has no '## [$version]' section. Add one before releasing."
+            exit 1
+          fi
+
+      - name: Extract the release notes
+        id: notes
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          {
+            echo 'notes<<CHROMUTA_NOTES_EOF'
+            awk -v v="## [$version]" '
+              index($0, v) == 1 { found = 1; next }
+              found && /^## \[/   { exit }
+              found               { print }
+            ' CHANGELOG.md
+            echo 'CHROMUTA_NOTES_EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Verify
+        run: npm run check
+
+      - name: Smoke test the bundle
+        run: node .github/scripts/smoke.mjs
+
+      - name: Package
+        run: npm run package
+
+      - name: Upload the package
+        uses: actions/upload-artifact@v4
+        with:
+          name: chromuta-${{ steps.version.outputs.version }}
+          path: chromuta.vsix
+          if-no-files-found: error
+
+      - name: Stop here on a dry run
+        if: inputs.dry_run
+        run: |
+          echo "### Dry run complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "Version \`${{ steps.version.outputs.version }}\` builds, verifies and packages." >> "$GITHUB_STEP_SUMMARY"
+          echo "No tag, release or publish happened. The package is attached as an artifact." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Tag the release
+        if: '!inputs.dry_run'
+        run: |
+          git config user.name  'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git tag -a "${{ steps.version.outputs.tag }}" -m "Chromuta ${{ steps.version.outputs.version }}"
+          git push origin "${{ steps.version.outputs.tag }}"
+
+      - name: Create the GitHub release
+        if: '!inputs.dry_run'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.tag }}" \
+            chromuta.vsix \
+            --title "Chromuta ${{ steps.version.outputs.version }}" \
+            --notes "${{ steps.notes.outputs.notes }}" \
+            --verify-tag
+
+      # Publishing is the only step that cannot be undone, so each target is separate
+      # and reports its own outcome.
+      - name: Publish to the Visual Studio Marketplace
+        if: ${{ !inputs.dry_run && inputs.publish_marketplace }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          if [ -z "$VSCE_PAT" ]; then
+            echo "::error::VSCE_PAT is not set in the 'release' environment."
+            exit 1
+          fi
+          npm run publish:vscode
+
+      - name: Publish to Open VSX
+        if: ${{ !inputs.dry_run && inputs.publish_openvsx }}
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: |
+          if [ -z "$OVSX_PAT" ]; then
+            echo "::error::OVSX_PAT is not set in the 'release' environment."
+            exit 1
+          fi
+          npx ovsx publish chromuta.vsix --pat "$OVSX_PAT"
+
+      - name: Summary
+        if: '!inputs.dry_run'
+        run: |
+          {
+            echo "### Chromuta ${{ steps.version.outputs.version }} released"
+            echo ""
+            echo "- Tag: \`${{ steps.version.outputs.tag }}\`"
+            echo "- Marketplace: ${{ inputs.publish_marketplace && 'published' || 'skipped' }}"
+            echo "- Open VSX: ${{ inputs.publish_openvsx && 'published' || 'skipped' }}"
+            echo ""
+            echo "Remember to move the \`## [Unreleased]\` heading forward in CHANGELOG.md."
+          } >> "$GITHUB_STEP_SUMMARY"
