@@ -415,17 +415,17 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@types/node": "^20.11.30",
+    "@types/node": "^26.5.0",
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^3.9.2",
-    "esbuild": "^0.20.2",
+    "esbuild": "^0.28.2",
     "eslint": "^10.10.0",
     "eslint-config-prettier": "^10.1.8",
     "ovsx": "^1.2.0",
     "prettier": "^3.9.6",
-    "typescript": "^5.4.3",
+    "typescript": "^7.0.2",
     "typescript-eslint": "^8.70.0",
-    "vitest": "^1.4.0"
+    "vitest": "^5.0.0"
   },
   "dependencies": {
     "jsonc-parser": "^3.3.1"
