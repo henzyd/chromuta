@@ -314,5 +314,8 @@
     "esbuild": "^0.20.2",
     "typescript": "^5.4.3",
     "vitest": "^1.4.0"
+  },
+  "dependencies": {
+    "jsonc-parser": "^3.3.1"
   }
 }

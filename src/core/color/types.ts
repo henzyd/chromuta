@@ -14,6 +14,15 @@ export type ColorNotation =
 /** Notations that can be produced as output. */
 export type OutputNotation = Exclude<ColorNotation, 'hwb' | 'color'>;
 
+/** The same set at runtime, for validating user-supplied values. */
+export const OUTPUT_NOTATIONS: readonly OutputNotation[] = [
+  'hex', 'rgb', 'hsl', 'oklch', 'oklab', 'lab', 'lch', 'named'
+];
+
+export function isOutputNotation(value: unknown): value is OutputNotation {
+  return typeof value === 'string' && (OUTPUT_NOTATIONS as readonly string[]).includes(value);
+}
+
 /**
  * A parsed color.
  *
