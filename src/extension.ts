@@ -7,7 +7,11 @@ import { registerMappingDiagnostics, revealMappingFile } from './features/mappin
 import { clearDocumentScanCache } from './features/documentScan.js';
 import { registerPaletteView } from './features/paletteTree.js';
 import { SwatchProvider } from './features/swatches.js';
-import { convertColorEverywhere, copyColor, type ColorTarget } from './features/commands/convertColorEverywhere.js';
+import {
+  convertColorEverywhere,
+  copyColor,
+  type ColorTarget
+} from './features/commands/convertColorEverywhere.js';
 import { applyRemap } from './features/commands/applyRemap.js';
 import { convertDocument } from './features/commands/convertDocument.js';
 import { convertSelection } from './features/commands/convertSelection.js';
@@ -129,7 +133,8 @@ function registerColorProvider(context: vscode.ExtensionContext): void {
 
 /** Gates the editor context menu item, so it does not appear in unrelated files. */
 function updateLanguageContext(editor: vscode.TextEditor | undefined): void {
-  const supported = editor !== undefined && SUPPORTED_LANGUAGES.includes(editor.document.languageId);
+  const supported =
+    editor !== undefined && SUPPORTED_LANGUAGES.includes(editor.document.languageId);
   void vscode.commands.executeCommand('setContext', 'chromuta.supportedLanguage', supported);
 }
 

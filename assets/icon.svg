@@ -1,0 +1,15 @@
+<!-- Editable source for assets/icon.png (128x128).
+     Two halves in different colours, split by an ink seam: one colour becoming
+     another, which is what the extension does. Re-export at 128x128 after editing. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <clipPath id="squircle">
+      <rect width="128" height="128" rx="24" ry="24"/>
+    </clipPath>
+  </defs>
+  <g clip-path="url(#squircle)">
+    <path d="M0 0 H128 V128 Z" fill="#3b82f6"/>
+    <path d="M0 0 V128 H128 Z" fill="#f43f5e"/>
+    <path d="M0 0 L128 128" stroke="#0f172a" stroke-width="10.9"/>
+  </g>
+</svg>

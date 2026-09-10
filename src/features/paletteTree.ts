@@ -58,7 +58,9 @@ export class PaletteTreeProvider implements vscode.TreeDataProvider<PaletteNode>
       if (review.length > 0) {
         nodes.push({ kind: 'reviewGroup', count: review.length });
       }
-      nodes.push(...palette.map((entry) => ({ kind: 'color' as const, entry, needsReview: false })));
+      nodes.push(
+        ...palette.map((entry) => ({ kind: 'color' as const, entry, needsReview: false }))
+      );
       return nodes;
     }
 
@@ -144,7 +146,9 @@ function occurrenceItem(node: OccurrenceNode): vscode.TreeItem {
 
   const tooltip = new vscode.MarkdownString();
   tooltip.appendMarkdown(`\`${match.text}\` in \`${relative}\`\n\n`);
-  tooltip.appendMarkdown(`${notationLabel(match.notation)} · confidence ${match.confidence.toFixed(2)}`);
+  tooltip.appendMarkdown(
+    `${notationLabel(match.notation)} · confidence ${match.confidence.toFixed(2)}`
+  );
   if (match.flags.length > 0) {
     tooltip.appendMarkdown(`\n\n${match.flags.map((f) => `- ${f}`).join('\n')}`);
   }

@@ -68,8 +68,7 @@ function swiftRgb(
 ): string {
   const { r, g, b, a } = toUnits(color);
   const precision = Math.max(options.precision, 3);
-  const channels =
-    `red: ${num(r, precision)}, green: ${num(g, precision)}, blue: ${num(b, precision)}`;
+  const channels = `red: ${num(r, precision)}, green: ${num(g, precision)}, blue: ${num(b, precision)}`;
 
   // UIColor requires alpha; SwiftUI's Color takes opacity only when it is not 1.
   if (alphaLabel === 'alpha') {

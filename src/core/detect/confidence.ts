@@ -7,10 +7,16 @@ const CSS_FAMILY = new Set(['css', 'scss', 'less', 'sass', 'postcss', 'stylus'])
 const CSS_EMBEDDING = new Set(['html', 'vue', 'svelte', 'astro', 'markdown']);
 
 const JS_FAMILY = new Set([
-  'javascript', 'javascriptreact', 'typescript', 'typescriptreact', 'vue', 'svelte'
+  'javascript',
+  'javascriptreact',
+  'typescript',
+  'typescriptreact',
+  'vue',
+  'svelte'
 ]);
 
-const PREPROCESSOR = /^\s*#\s*(include|define|if|ifdef|ifndef|elif|endif|pragma|import|error|warning|undef)\b/;
+const PREPROCESSOR =
+  /^\s*#\s*(include|define|if|ifdef|ifndef|elif|endif|pragma|import|error|warning|undef)\b/;
 
 const VCS_CONTEXT = /\b(commit|sha|hash|revision|rev|checksum|digest|etag)\b/i;
 

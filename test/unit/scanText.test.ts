@@ -10,7 +10,9 @@ const texts = (input: string, context: ScanContext = css): string[] =>
 
 /** Matches at or above the default 0.5 threshold, i.e. what bulk edits would touch. */
 const confident = (input: string, context: ScanContext = css): string[] =>
-  scanText(input, context).filter((m) => m.confidence >= 0.5).map((m) => m.text);
+  scanText(input, context)
+    .filter((m) => m.confidence >= 0.5)
+    .map((m) => m.text);
 
 describe('finds color literals', () => {
   it('detects hex in a declaration', () => {
@@ -103,7 +105,10 @@ describe('confidence scoring', () => {
   });
 
   it('demotes matches in snapshots and fixtures', () => {
-    const match = scanText('#3b82f6', { languageId: 'css', filePath: 'src/__snapshots__/a.snap' })[0]!;
+    const match = scanText('#3b82f6', {
+      languageId: 'css',
+      filePath: 'src/__snapshots__/a.snap'
+    })[0]!;
     expect(match.confidence).toBeLessThan(1);
     expect(match.flags).toContain('test fixture or snapshot');
   });

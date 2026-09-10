@@ -79,7 +79,8 @@ export function inferStyle(matches: readonly ColorMatch[]): StyleProfile {
   if (upperHex !== lowerHex) profile.hexCase = upperHex > lowerHex ? 'upper' : 'lower';
   if (shorthand !== longhand) profile.shorthandHex = shorthand > longhand;
   if (legacy !== modern) profile.functionSyntax = legacy > modern ? 'legacy' : 'modern';
-  if (percentAlpha !== numberAlpha) profile.alphaStyle = percentAlpha > numberAlpha ? 'percent' : 'number';
+  if (percentAlpha !== numberAlpha)
+    profile.alphaStyle = percentAlpha > numberAlpha ? 'percent' : 'number';
   if (spacedComma !== tightComma) profile.spaceAfterComma = spacedComma > tightComma;
 
   return profile;
@@ -114,6 +115,9 @@ function alphaArgument(inner: string): string | null {
   const slash = inner.lastIndexOf('/');
   if (slash !== -1) return inner.slice(slash + 1).trim() || null;
 
-  const parts = inner.split(',').map((p) => p.trim()).filter(Boolean);
+  const parts = inner
+    .split(',')
+    .map((p) => p.trim())
+    .filter(Boolean);
   return parts.length === 4 ? parts[3]! : null;
 }

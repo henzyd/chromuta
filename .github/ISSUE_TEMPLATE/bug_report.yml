@@ -1,0 +1,86 @@
+name: Bug report
+description: Something behaves differently from what it should
+labels: ['bug', 'needs triage']
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting. For anything to do with colour detection, the single most
+        useful thing you can give us is the exact literal and the file type it was in.
+        That maps straight onto a test fixture.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did Chromuta do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: The smallest file content that reproduces it
+      description: |
+        Paste the literal and enough context around it to matter. If the file type is
+        significant, say which, since detection is language-aware.
+      render: text
+      placeholder: |
+        File: theme.dart
+        const Color brand = Color(0xFF3B82F6);
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Which part
+      options:
+        - Colour detection, something was missed
+        - Colour detection, something was matched that is not a colour
+        - Conversion produced the wrong value
+        - Conversion produced the wrong format or notation
+        - Workspace palette view
+        - Palette mapping, extract or apply
+        - Performance
+        - Not sure
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Chromuta version
+      placeholder: '0.1.0'
+    validations:
+      required: true
+
+  - type: input
+    id: editor
+    attributes:
+      label: Editor and version
+      description: From Help then About. Cursor, Windsurf and VSCodium are fine, just say which.
+      placeholder: 'VS Code 1.96.2, macOS 15.2 arm64'
+    validations:
+      required: true
+
+  - type: textarea
+    id: settings
+    attributes:
+      label: Any non-default chromuta.* settings
+      description: Especially `chromuta.dialects` and `chromuta.confidenceThreshold`.
+      render: json
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Output channel
+      description: 'View then Output, then pick Chromuta from the dropdown.'
+      render: text

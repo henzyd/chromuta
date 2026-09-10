@@ -64,7 +64,10 @@ export async function applyRemap(index: ColorIndex, cache: ScanCache): Promise<v
   if (!planned) return;
   const { plan, uris } = planned;
 
-  reportPlan(plan, loaded.parsed.mapping.rules.map((r) => `${r.from} → ${r.to}`));
+  reportPlan(
+    plan,
+    loaded.parsed.mapping.rules.map((r) => `${r.from} → ${r.to}`)
+  );
 
   if (plan.editCount === 0) {
     void vscode.window.showInformationMessage(`Chromuta: nothing to change. ${describePlan(plan)}`);
@@ -142,7 +145,9 @@ async function buildPlanFromWorkspace(
 
       inputs.push({ uri, path: relative, matches, formatOptions });
     } catch (error) {
-      log(`applyRemap: skipped ${relative}: ${error instanceof Error ? error.message : String(error)}`);
+      log(
+        `applyRemap: skipped ${relative}: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
 
     if (i % 25 === 0) {
@@ -194,10 +199,14 @@ function buildWorkspaceEdit(
 async function confirmPlan(plan: ChangePlan<IndexedMatch>): Promise<boolean> {
   const warnings: string[] = [];
   if (plan.ambiguities.length > 0) {
-    warnings.push(`${plan.ambiguities.length} color(s) matched more than one rule and will be left alone.`);
+    warnings.push(
+      `${plan.ambiguities.length} color(s) matched more than one rule and will be left alone.`
+    );
   }
   if (plan.lossyCount > 0) {
-    warnings.push(`${plan.lossyCount} replacement(s) fall outside sRGB and will have their chroma reduced.`);
+    warnings.push(
+      `${plan.lossyCount} replacement(s) fall outside sRGB and will have their chroma reduced.`
+    );
   }
 
   if (warnings.length === 0) return true;

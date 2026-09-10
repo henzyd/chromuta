@@ -22,7 +22,10 @@ import type { Color } from '../../src/core/color/types.js';
 const hex = (color: Color | null): string | null =>
   color === null
     ? null
-    : formatColor({ ...color, alpha: 1 }, 'hex', { ...DEFAULT_FORMAT_OPTIONS, shorthandHex: false });
+    : formatColor({ ...color, alpha: 1 }, 'hex', {
+        ...DEFAULT_FORMAT_OPTIONS,
+        shorthandHex: false
+      });
 
 const alphaOf = (color: Color | null): number | null =>
   color === null ? null : Math.round(color.alpha * 1000) / 1000;
@@ -112,16 +115,22 @@ describe('Swift', () => {
   it('reads UIColor and NSColor unit-float channels', () => {
     const color = parseSwiftColor('UIColor(red: 0.231, green: 0.51, blue: 0.965, alpha: 1.0)');
     expect(hex(color)).toBe('#3b82f6');
-    expect(hex(parseSwiftColor('NSColor(red: 0.231, green: 0.51, blue: 0.965, alpha: 1)'))).toBe('#3b82f6');
+    expect(hex(parseSwiftColor('NSColor(red: 0.231, green: 0.51, blue: 0.965, alpha: 1)'))).toBe(
+      '#3b82f6'
+    );
   });
 
   it('reads SwiftUI Color, where alpha is called opacity and may be absent', () => {
     expect(hex(parseSwiftColor('Color(red: 0.231, green: 0.51, blue: 0.965)'))).toBe('#3b82f6');
-    expect(alphaOf(parseSwiftColor('Color(red: 0.2, green: 0.4, blue: 0.8, opacity: 0.5)'))).toBe(0.5);
+    expect(alphaOf(parseSwiftColor('Color(red: 0.2, green: 0.4, blue: 0.8, opacity: 0.5)'))).toBe(
+      0.5
+    );
   });
 
   it('reads a leading color-space argument', () => {
-    expect(hex(parseSwiftColor('Color(.sRGB, red: 0.231, green: 0.51, blue: 0.965)'))).toBe('#3b82f6');
+    expect(hex(parseSwiftColor('Color(.sRGB, red: 0.231, green: 0.51, blue: 0.965)'))).toBe(
+      '#3b82f6'
+    );
   });
 
   it('reads the grayscale initializer', () => {
@@ -131,10 +140,16 @@ describe('Swift', () => {
 
   it('reads hue/saturation/brightness as HSV, which is what Swift means by brightness', () => {
     // HSV with full saturation and value is pure hue, unlike HSL where that is white.
-    expect(hex(parseSwiftColor('UIColor(hue: 0, saturation: 1, brightness: 1, alpha: 1)'))).toBe('#ff0000');
-    expect(hex(parseSwiftColor('UIColor(hue: 0.3333, saturation: 1, brightness: 1, alpha: 1)'))).toBe('#00ff00');
+    expect(hex(parseSwiftColor('UIColor(hue: 0, saturation: 1, brightness: 1, alpha: 1)'))).toBe(
+      '#ff0000'
+    );
+    expect(
+      hex(parseSwiftColor('UIColor(hue: 0.3333, saturation: 1, brightness: 1, alpha: 1)'))
+    ).toBe('#00ff00');
     // Saturation zero at full value is white in HSV.
-    expect(hex(parseSwiftColor('UIColor(hue: 0.5, saturation: 0, brightness: 1, alpha: 1)'))).toBe('#ffffff');
+    expect(hex(parseSwiftColor('UIColor(hue: 0.5, saturation: 0, brightness: 1, alpha: 1)'))).toBe(
+      '#ffffff'
+    );
   });
 
   it('rejects channels outside 0 to 1', () => {
@@ -150,26 +165,33 @@ describe('Swift', () => {
     expect(swiftNotationFor('NSColor(red: 0, green: 0, blue: 0, alpha: 1)')).toBe('swift-nscolor');
     expect(swiftNotationFor('Color(red: 0, green: 0, blue: 0)')).toBe('swift-color');
     expect(swiftNotationFor('UIColor(white: 0.5, alpha: 1)')).toBe('swift-white');
-    expect(swiftNotationFor('UIColor(hue: 0.5, saturation: 1, brightness: 1, alpha: 1)')).toBe('swift-hsb');
+    expect(swiftNotationFor('UIColor(hue: 0.5, saturation: 1, brightness: 1, alpha: 1)')).toBe(
+      'swift-hsb'
+    );
   });
 
   it('writes each Swift form', () => {
     const blue = parseColor('#3b82f6')!;
-    expect(formatDialectColor(blue, 'swift-uicolor', DEFAULT_FORMAT_OPTIONS))
-      .toBe('UIColor(red: 0.231, green: 0.51, blue: 0.965, alpha: 1)');
-    expect(formatDialectColor(blue, 'swift-nscolor', DEFAULT_FORMAT_OPTIONS))
-      .toMatch(/^NSColor\(/);
-    expect(formatDialectColor(blue, 'swift-color', DEFAULT_FORMAT_OPTIONS))
-      .toBe('Color(red: 0.231, green: 0.51, blue: 0.965)');
+    expect(formatDialectColor(blue, 'swift-uicolor', DEFAULT_FORMAT_OPTIONS)).toBe(
+      'UIColor(red: 0.231, green: 0.51, blue: 0.965, alpha: 1)'
+    );
+    expect(formatDialectColor(blue, 'swift-nscolor', DEFAULT_FORMAT_OPTIONS)).toMatch(/^NSColor\(/);
+    expect(formatDialectColor(blue, 'swift-color', DEFAULT_FORMAT_OPTIONS)).toBe(
+      'Color(red: 0.231, green: 0.51, blue: 0.965)'
+    );
   });
 
   it('omits opacity on SwiftUI Color when opaque but includes alpha on UIColor', () => {
     const blue = parseColor('#3b82f6')!;
-    expect(formatDialectColor(blue, 'swift-color', DEFAULT_FORMAT_OPTIONS)).not.toContain('opacity');
+    expect(formatDialectColor(blue, 'swift-color', DEFAULT_FORMAT_OPTIONS)).not.toContain(
+      'opacity'
+    );
     expect(formatDialectColor(blue, 'swift-uicolor', DEFAULT_FORMAT_OPTIONS)).toContain('alpha');
 
     const half = parseColor('rgb(59 130 246 / 0.5)')!;
-    expect(formatDialectColor(half, 'swift-color', DEFAULT_FORMAT_OPTIONS)).toContain('opacity: 0.5');
+    expect(formatDialectColor(half, 'swift-color', DEFAULT_FORMAT_OPTIONS)).toContain(
+      'opacity: 0.5'
+    );
   });
 });
 
@@ -198,7 +220,9 @@ describe('Tailwind', () => {
       expect(text).not.toContain(' ');
       expect(text).toContain('_');
     }
-    expect(formatDialectColor(blue, 'tw-rgb', DEFAULT_FORMAT_OPTIONS)).toBe('rgb(37_130_246)'.replace('37', '59'));
+    expect(formatDialectColor(blue, 'tw-rgb', DEFAULT_FORMAT_OPTIONS)).toBe(
+      'rgb(37_130_246)'.replace('37', '59')
+    );
   });
 });
 
@@ -228,7 +252,9 @@ describe('round-tripping every dialect output notation', () => {
         const back = parsers[notation](written);
         expect(back, `${sample} -> ${written}`).not.toBeNull();
         expect(hex(back), `${sample} -> ${written}`).toBe(hex(original));
-        expect(Math.abs(back!.alpha - original.alpha), `${sample} -> ${written}`).toBeLessThan(0.005);
+        expect(Math.abs(back!.alpha - original.alpha), `${sample} -> ${written}`).toBeLessThan(
+          0.005
+        );
       }
     }
   );

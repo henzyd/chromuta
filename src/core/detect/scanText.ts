@@ -33,10 +33,7 @@ export function scanText(text: string, context: ScanContext = {}): ColorMatch[] 
 }
 
 /** Matches at or above the confidence threshold, i.e. those safe to bulk-edit. */
-export function confidentMatches(
-  matches: readonly ColorMatch[],
-  threshold: number
-): ColorMatch[] {
+export function confidentMatches(matches: readonly ColorMatch[], threshold: number): ColorMatch[] {
   return matches.filter((m) => m.confidence >= threshold);
 }
 
@@ -63,10 +60,7 @@ interface Candidate extends RawMatch {
  * Tailwind's `rgb(0_0_0)` but cannot parse the underscores. Resolving overlaps first
  * would let the CSS pattern win and then drop the match entirely.
  */
-function collectCandidates(
-  text: string,
-  patterns: readonly DialectPattern[]
-): Candidate[] {
+function collectCandidates(text: string, patterns: readonly DialectPattern[]): Candidate[] {
   const all: Candidate[] = [];
 
   for (const pattern of patterns) {

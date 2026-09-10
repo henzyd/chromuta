@@ -111,7 +111,7 @@ interface Color {
   /** Canonical coordinates. OKLab is the working space so that
    *  wide-gamut input round-trips and perceptual distance is cheap. */
   ok: { L: number; a: number; b: number };
-  alpha: number;                 // 0..1
+  alpha: number; // 0..1
   /** How it was written in source, for lossless identity rewrites. */
   source?: { notation: ColorNotation; raw: string };
 }
@@ -122,7 +122,7 @@ interface Color {
 holds them losslessly and makes `distance.ts` a plain Euclidean metric, which the palette-remap
 nearest-match step needs anyway.
 
-**Gamut handling.** Converting an out-of-sRGB color *into* hex is lossy by definition.
+**Gamut handling.** Converting an out-of-sRGB color _into_ hex is lossy by definition.
 `gamut.ts` clamps by reducing chroma at constant lightness and hue, and the conversion command
 warns rather than silently mangling. Same-notation edits skip the round-trip entirely by using
 `source.raw`.
@@ -134,14 +134,14 @@ warns rather than silently mangling. Same-notation edits skip the round-trip ent
 The most common reason a tool like this gets uninstalled is that it reformats code in ways the
 project does not use. `FormatOptions` is therefore explicit:
 
-| Option | Values | Default |
-|---|---|---|
-| `hexCase` | `lower` \| `upper` | `lower` |
-| `shorthandHex` | collapse `#ffffff` → `#fff` when exact | `true` |
-| `functionSyntax` | `modern` (`rgb(0 0 0 / 50%)`) \| `legacy` (`rgba(0,0,0,.5)`) | `modern` |
-| `alphaStyle` | `percent` \| `number` | `number` |
-| `precision` | decimal places for float channels | `3` |
-| `spaceAfterComma` | legacy syntax only | `true` |
+| Option            | Values                                                       | Default  |
+| ----------------- | ------------------------------------------------------------ | -------- |
+| `hexCase`         | `lower` \| `upper`                                           | `lower`  |
+| `shorthandHex`    | collapse `#ffffff` → `#fff` when exact                       | `true`   |
+| `functionSyntax`  | `modern` (`rgb(0 0 0 / 50%)`) \| `legacy` (`rgba(0,0,0,.5)`) | `modern` |
+| `alphaStyle`      | `percent` \| `number`                                        | `number` |
+| `precision`       | decimal places for float channels                            | `3`      |
+| `spaceAfterComma` | legacy syntax only                                           | `true`   |
 
 **Style inference.** Before formatting, `format.ts` is handed a `StyleProfile` derived from the
 other color literals already in that file. If a file has 40 uppercase hex values, a new hex value is
@@ -158,6 +158,7 @@ inference overrides defaults.
 `hsl()`/`hsla()`, `oklch()`, `oklab()`, `lab()`, `lch()`, `color(<space> …)`, CSS named colors.
 
 **Dialects** extend the pattern set per file type:
+
 - **tailwind** — arbitrary values, `bg-[#3b82f6]`, `text-[rgb(0_0_0)]`
 - **flutter/dart** — `Color(0xFF3B82F6)`, `Colors.blue.shade500`
 - **android** — `0xFFRRGGBB`, `@color/name` references, `colors.xml`
@@ -167,15 +168,15 @@ inference overrides defaults.
 
 Regex alone produces real false positives. `confidence.ts` starts each match at `1.0` and subtracts:
 
-| Signal | Penalty | Rationale |
-|---|---|---|
-| Bare 6-hex-char run inside a URL or `href` | −0.9 | anchor fragment, not a color |
-| Preceded by `commit`, `sha`, `revision` within 20 chars | −0.9 | git hash |
-| Line begins with `#include` / `#define` / `#if` | −1.0 | C preprocessor |
-| Named color outside a CSS-family file | −0.6 | `red` is an identifier everywhere |
-| Named color not in a property-value position | −0.4 | needs `:` or `=` to its left |
-| Inside a line/block comment | −0.2 | usually still a real color, just lower priority |
-| Inside a test fixture or snapshot path | −0.3 | rewriting these breaks tests |
+| Signal                                                  | Penalty | Rationale                                       |
+| ------------------------------------------------------- | ------- | ----------------------------------------------- |
+| Bare 6-hex-char run inside a URL or `href`              | −0.9    | anchor fragment, not a color                    |
+| Preceded by `commit`, `sha`, `revision` within 20 chars | −0.9    | git hash                                        |
+| Line begins with `#include` / `#define` / `#if`         | −1.0    | C preprocessor                                  |
+| Named color outside a CSS-family file                   | −0.6    | `red` is an identifier everywhere               |
+| Named color not in a property-value position            | −0.4    | needs `:` or `=` to its left                    |
+| Inside a line/block comment                             | −0.2    | usually still a real color, just lower priority |
+| Inside a test fixture or snapshot path                  | −0.3    | rewriting these breaks tests                    |
 
 Matches below `chromuta.confidenceThreshold` (default `0.5`) are indexed but excluded from bulk
 operations, and shown in a separate **Needs review** group in the tree view. This keeps the
@@ -200,6 +201,7 @@ A file is rescanned only when mtime or size differs. Cold scan on a large repo i
 subsequent activations are near-instant.
 
 **Incremental invalidation.**
+
 - `onDidChangeTextDocument` → debounce 300 ms → rescan that single document only.
 - `FileSystemWatcher` on the include glob → handle creates, deletes, and external edits.
 
@@ -208,7 +210,7 @@ subsequent activations are near-instant.
 ```ts
 class ColorIndex {
   byFile(uri: Uri): ColorMatch[];
-  byColor(): Map<string /* normalized key */, ColorMatch[]>;  // powers the palette view
+  byColor(): Map<string /* normalized key */, ColorMatch[]>; // powers the palette view
 }
 ```
 
@@ -222,7 +224,7 @@ and `rgb(255 255 255)` collapse into one palette entry with three occurrences.
 **`DocumentColorProvider` — the highest-leverage integration.** Implementing
 `provideDocumentColors` puts a native swatch beside every detected literal. Implementing
 `provideColorPresentations` means that when the user opens the swatch picker, VS Code lists the
-alternative notations *we* supply, and picking one applies the edit. Single-color conversion is
+alternative notations _we_ supply, and picking one applies the edit. Single-color conversion is
 therefore mostly free, using the editor's own UI rather than a bespoke one.
 
 **`CodeActionProvider`** — quick fixes on the literal under the cursor: convert to each enabled
@@ -249,7 +251,7 @@ The bulk theme-swap path. Driven by a workspace file, `chromuta.mapping.json` by
 {
   "version": 1,
   "defaultNotation": "oklch",
-  "tolerance": 0.02,           // ΔE-OK; 0 means exact match only
+  "tolerance": 0.02, // ΔE-OK; 0 means exact match only
   "rules": [
     { "from": "#3b82f6", "to": "#2563eb" },
     { "from": "#ef4444", "to": "oklch(0.63 0.24 25)" },
@@ -323,12 +325,12 @@ palette" into "fill in this list" is the difference between a feature people use
 
 ## 13. Delivery phases
 
-| Phase | Contents | Ships as |
-|---|---|---|
+| Phase  | Contents                                                                                                                | Ships as                                              |
+| ------ | ----------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
 | **P0** | `core/color`, `core/detect` for CSS notations, `DocumentColorProvider`, convert-selection and convert-document commands | Usable extension: swatches and single/file conversion |
-| **P1** | `workspace/scanner` + `ColorIndex` + caching, palette tree view, hover, code actions | The "find hard-coded colors" feature lands |
-| **P2** | `core/remap`, mapping schema, extract-mapping, preview + apply | Theme swap lands |
-| **P3** | Non-CSS dialects, confidence tuning from real repos, perf on very large workspaces | Breadth |
+| **P1** | `workspace/scanner` + `ColorIndex` + caching, palette tree view, hover, code actions                                    | The "find hard-coded colors" feature lands            |
+| **P2** | `core/remap`, mapping schema, extract-mapping, preview + apply                                                          | Theme swap lands                                      |
+| **P3** | Non-CSS dialects, confidence tuning from real repos, perf on very large workspaces                                      | Breadth                                               |
 
 P0 is independently shippable and validates the color engine against real files before any of the
 workspace machinery exists.

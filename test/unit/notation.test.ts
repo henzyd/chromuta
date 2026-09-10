@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_FORMAT_OPTIONS, type OutputNotation } from '../../src/core/color/types.js';
 import { parseColor } from '../../src/core/color/parse.js';
-import { formatAny, isLossyAny, notationLabel, notationsForMatch } from '../../src/core/notation.js';
+import {
+  formatAny,
+  isLossyAny,
+  notationLabel,
+  notationsForMatch
+} from '../../src/core/notation.js';
 import { dialectOf } from '../../src/core/dialects/registry.js';
 import type { DialectId } from '../../src/core/dialects/types.js';
 

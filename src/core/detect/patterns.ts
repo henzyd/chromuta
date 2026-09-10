@@ -16,8 +16,7 @@ export const HEX_PATTERN =
  * Functional notations. `lab` and `lch` are listed after their `ok` prefixed
  * siblings, and the leading \b keeps `lab` from matching inside `oklab`.
  */
-export const FUNCTION_PATTERN =
-  /\b(?:rgba?|hsla?|hwb|oklch|oklab|lch|lab)\(\s*[^()]*?\)/gi;
+export const FUNCTION_PATTERN = /\b(?:rgba?|hsla?|hwb|oklch|oklab|lch|lab)\(\s*[^()]*?\)/gi;
 
 /** The generic color() function, which names its space as the first argument. */
 export const COLOR_FUNCTION_PATTERN = /\bcolor\(\s*[^()]*?\)/gi;

@@ -21,7 +21,8 @@ function globToRegExp(pattern: string): RegExp {
   if (cached) return cached;
 
   const source = pattern
-    .split('\\').join('/')
+    .split('\\')
+    .join('/')
     // Escape regex metacharacters, leaving the glob operators * ? / alone.
     .replace(/[.+^${}()|[\]]/g, '\\$&')
     // `**/` must be optional so `**/dist/**` also matches a top-level `dist/x`.
@@ -29,8 +30,10 @@ function globToRegExp(pattern: string): RegExp {
     .replace(/\*\*/g, '\u0001')
     .replace(/\*/g, '[^/]*')
     .replace(/\?/g, '[^/]')
-    .split('\u0000').join('(?:.*/)?')
-    .split('\u0001').join('.*');
+    .split('\u0000')
+    .join('(?:.*/)?')
+    .split('\u0001')
+    .join('.*');
 
   const regex = new RegExp(`^${source}$`);
   cache.set(pattern, regex);

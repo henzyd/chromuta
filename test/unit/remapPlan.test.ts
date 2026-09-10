@@ -4,7 +4,12 @@ import { parseColor } from '../../src/core/color/parse.js';
 import { DEFAULT_FORMAT_OPTIONS } from '../../src/core/color/types.js';
 import { scanText } from '../../src/core/detect/scanText.js';
 import { applyStyleProfile, inferStyle } from '../../src/core/detect/style.js';
-import { applyEditsToText, buildPlan, describePlan, type PlanInput } from '../../src/core/remap/plan.js';
+import {
+  applyEditsToText,
+  buildPlan,
+  describePlan,
+  type PlanInput
+} from '../../src/core/remap/plan.js';
 import { compileMapping } from '../../src/core/remap/resolve.js';
 import { parseMapping } from '../../src/core/remap/schema.js';
 
@@ -29,8 +34,9 @@ function rewrite(text: string, json: string, path = 'a.css'): string {
 
 describe('rewriting text', () => {
   it('replaces an exact match', () => {
-    expect(rewrite('a { color: #3b82f6; }', '{"version":1,"rules":[{"from":"#3b82f6","to":"#2563eb"}]}'))
-      .toBe('a { color: #2563eb; }');
+    expect(
+      rewrite('a { color: #3b82f6; }', '{"version":1,"rules":[{"from":"#3b82f6","to":"#2563eb"}]}')
+    ).toBe('a { color: #2563eb; }');
   });
 
   it('replaces the same color however it was written', () => {
@@ -50,19 +56,23 @@ describe('rewriting text', () => {
 
   it('handles a replacement longer than the original', () => {
     const json = '{"version":1,"rules":[{"from":"#fff","to":"oklch(1 0 0)"}]}';
-    expect(rewrite('a{color:#fff;background:#fff}', json))
-      .toBe('a{color:oklch(1 0 0);background:oklch(1 0 0)}');
+    expect(rewrite('a{color:#fff;background:#fff}', json)).toBe(
+      'a{color:oklch(1 0 0);background:oklch(1 0 0)}'
+    );
   });
 
   it('handles a replacement shorter than the original', () => {
     const json = '{"version":1,"rules":[{"from":"rgb(255 255 255)","to":"#fff"}]}';
-    expect(rewrite('a{color:rgb(255 255 255);border-color:rgb(255 255 255)}', json))
-      .toBe('a{color:#fff;border-color:#fff}');
+    expect(rewrite('a{color:rgb(255 255 255);border-color:rgb(255 255 255)}', json)).toBe(
+      'a{color:#fff;border-color:#fff}'
+    );
   });
 
   it('leaves unmapped colors alone', () => {
     const json = '{"version":1,"rules":[{"from":"#fff","to":"#000"}]}';
-    expect(rewrite('a{color:#fff;background:#123456}', json)).toBe('a{color:#000;background:#123456}');
+    expect(rewrite('a{color:#fff;background:#123456}', json)).toBe(
+      'a{color:#000;background:#123456}'
+    );
   });
 
   it('writes the replacement in the notation the mapping asks for', () => {
@@ -81,7 +91,11 @@ describe('rewriting text', () => {
     const text = 'a{color:#3B82F6;background:#AABBCC;border-color:#DDEEFF}';
     const matches = scanText(text, { languageId: 'css' });
     const options = applyStyleProfile(DEFAULT_FORMAT_OPTIONS, inferStyle(matches));
-    const plan = buildPlan([{ path: 'a.css', matches, formatOptions: options }], compile(json), 0.5);
+    const plan = buildPlan(
+      [{ path: 'a.css', matches, formatOptions: options }],
+      compile(json),
+      0.5
+    );
     expect(applyEditsToText(text, plan.files[0]!.edits)).toContain('#2563EB');
   });
 });
@@ -125,7 +139,11 @@ describe('plan accounting', () => {
 
   it('counts colors no rule matched', () => {
     const json = '{"version":1,"rules":[{"from":"#fff","to":"#000"}]}';
-    const plan = buildPlan([input('a.css', 'a{color:#123456;background:#654321}')], compile(json), 0.5);
+    const plan = buildPlan(
+      [input('a.css', 'a{color:#123456;background:#654321}')],
+      compile(json),
+      0.5
+    );
     expect(plan.counts.unmapped).toBe(2);
   });
 
@@ -157,7 +175,11 @@ describe('plan accounting', () => {
 
   it('marks approximate matches so the preview can distinguish them', () => {
     const json = '{"version":1,"tolerance":0.02,"rules":[{"from":"#3b82f6","to":"#2563eb"}]}';
-    const plan = buildPlan([input('a.css', 'a{color:#3d84f8;background:#3b82f6}')], compile(json), 0.5);
+    const plan = buildPlan(
+      [input('a.css', 'a{color:#3d84f8;background:#3b82f6}')],
+      compile(json),
+      0.5
+    );
     const edits = plan.files[0]!.edits;
     expect(edits.map((e) => e.exact)).toEqual([false, true]);
     expect(edits[0]!.distance).toBeGreaterThan(0);

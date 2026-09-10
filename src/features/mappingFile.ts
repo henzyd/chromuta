@@ -31,9 +31,7 @@ export async function loadMapping(): Promise<LoadedMapping | undefined> {
   if (!uri) return undefined;
 
   // An open editor may hold unsaved edits, which are what the user means.
-  const open = vscode.workspace.textDocuments.find(
-    (doc) => doc.uri.toString() === uri.toString()
-  );
+  const open = vscode.workspace.textDocuments.find((doc) => doc.uri.toString() === uri.toString());
 
   let text: string;
   if (open) {

@@ -11,10 +11,16 @@ const scan = (text: string, context: ScanContext = {}): ColorMatch[] =>
   scanText(text, { dialects: ALL, ...context });
 
 const rgbOf = (match: ColorMatch): string =>
-  formatColor({ ...match.color, alpha: 1 }, 'hex', { ...DEFAULT_FORMAT_OPTIONS, shorthandHex: false })!;
+  formatColor({ ...match.color, alpha: 1 }, 'hex', {
+    ...DEFAULT_FORMAT_OPTIONS,
+    shorthandHex: false
+  })!;
 
 describe('Android resource files', () => {
-  const resource: ScanContext = { languageId: 'xml', filePath: 'app/src/main/res/values/colors.xml' };
+  const resource: ScanContext = {
+    languageId: 'xml',
+    filePath: 'app/src/main/res/values/colors.xml'
+  };
 
   it('reads 8-digit hex as alpha-first', () => {
     const [match] = scan('<color name="brand">#FF3B82F6</color>', resource);
@@ -101,7 +107,11 @@ describe('Swift', () => {
       let e = UIColor(hue: 0.6, saturation: 0.5, brightness: 0.9, alpha: 1.0)
     `;
     expect(scan(source, swift).map((m) => m.notation)).toEqual([
-      'swift-uicolor', 'swift-nscolor', 'swift-color', 'swift-white', 'swift-hsb'
+      'swift-uicolor',
+      'swift-nscolor',
+      'swift-color',
+      'swift-white',
+      'swift-hsb'
     ]);
   });
 
@@ -129,8 +139,9 @@ describe('Tailwind', () => {
   it('beats the CSS function pattern, which claims the same span but cannot read it', () => {
     // With the dialect off, the CSS pattern wins the span and then fails to parse, so
     // the color is lost entirely. That is what parsing before overlap resolution fixes.
-    expect(scan('<div class="text-[rgb(59_130_246)]">x</div>', { ...html, dialects: ['css'] }))
-      .toEqual([]);
+    expect(
+      scan('<div class="text-[rgb(59_130_246)]">x</div>', { ...html, dialects: ['css'] })
+    ).toEqual([]);
   });
 
   it('leaves ordinary bracketed hex to the CSS pattern', () => {

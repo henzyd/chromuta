@@ -7,7 +7,9 @@ const profileOf = (source: string) => inferStyle(scanText(source, { languageId: 
 
 describe('style inference', () => {
   it('picks up uppercase hex', () => {
-    expect(profileOf('a{color:#FFF;border-color:#3B82F6;outline-color:#AABBCC}').hexCase).toBe('upper');
+    expect(profileOf('a{color:#FFF;border-color:#3B82F6;outline-color:#AABBCC}').hexCase).toBe(
+      'upper'
+    );
   });
 
   it('picks up lowercase hex', () => {
@@ -34,16 +36,21 @@ describe('style inference', () => {
   });
 
   it('detects tight commas', () => {
-    expect(profileOf('a{color:rgba(0,0,0,.5);border-color:rgb(1,2,3)}').spaceAfterComma).toBe(false);
+    expect(profileOf('a{color:rgba(0,0,0,.5);border-color:rgb(1,2,3)}').spaceAfterComma).toBe(
+      false
+    );
   });
 
   it('detects modern syntax', () => {
-    expect(profileOf('a{color:rgb(0 0 0);border-color:hsl(1 2% 3%)}').functionSyntax).toBe('modern');
+    expect(profileOf('a{color:rgb(0 0 0);border-color:hsl(1 2% 3%)}').functionSyntax).toBe(
+      'modern'
+    );
   });
 
   it('detects percentage alpha', () => {
-    expect(profileOf('a{color:rgb(0 0 0 / 50%);border-color:hsl(1 2% 3% / 20%)}').alphaStyle)
-      .toBe('percent');
+    expect(profileOf('a{color:rgb(0 0 0 / 50%);border-color:hsl(1 2% 3% / 20%)}').alphaStyle).toBe(
+      'percent'
+    );
   });
 
   it('stays silent when the evidence is tied', () => {

@@ -6,9 +6,12 @@ const TOLERANCE = 1e-5;
 export function isInSrgbGamut(ok: OkLab): boolean {
   const rgb = okLabToRgb(ok);
   return (
-    rgb.r >= -TOLERANCE && rgb.r <= 1 + TOLERANCE &&
-    rgb.g >= -TOLERANCE && rgb.g <= 1 + TOLERANCE &&
-    rgb.b >= -TOLERANCE && rgb.b <= 1 + TOLERANCE
+    rgb.r >= -TOLERANCE &&
+    rgb.r <= 1 + TOLERANCE &&
+    rgb.g >= -TOLERANCE &&
+    rgb.g <= 1 + TOLERANCE &&
+    rgb.b >= -TOLERANCE &&
+    rgb.b <= 1 + TOLERANCE
   );
 }
 

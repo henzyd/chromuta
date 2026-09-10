@@ -40,20 +40,34 @@ export function isLossyAny(color: Color, notation: AnyOutputNotation): boolean {
 /** A human-readable label, since notation ids like `dart-rgbo` are not self-explaining. */
 export function notationLabel(notation: ColorNotation): string {
   switch (notation) {
-    case 'dart-color': return 'Flutter Color(0x…)';
-    case 'dart-argb': return 'Flutter Color.fromARGB';
-    case 'dart-rgbo': return 'Flutter Color.fromRGBO';
-    case 'argb-hex': return 'ARGB integer';
-    case 'android-hex': return 'Android #AARRGGBB';
-    case 'swift-uicolor': return 'UIColor';
-    case 'swift-nscolor': return 'NSColor';
-    case 'swift-color': return 'SwiftUI Color';
-    case 'swift-hsb': return 'UIColor(hue:…)';
-    case 'swift-white': return 'UIColor(white:…)';
-    case 'tw-rgb': return 'Tailwind rgb()';
-    case 'tw-hsl': return 'Tailwind hsl()';
-    case 'tw-oklch': return 'Tailwind oklch()';
-    default: return notation;
+    case 'dart-color':
+      return 'Flutter Color(0x…)';
+    case 'dart-argb':
+      return 'Flutter Color.fromARGB';
+    case 'dart-rgbo':
+      return 'Flutter Color.fromRGBO';
+    case 'argb-hex':
+      return 'ARGB integer';
+    case 'android-hex':
+      return 'Android #AARRGGBB';
+    case 'swift-uicolor':
+      return 'UIColor';
+    case 'swift-nscolor':
+      return 'NSColor';
+    case 'swift-color':
+      return 'SwiftUI Color';
+    case 'swift-hsb':
+      return 'UIColor(hue:…)';
+    case 'swift-white':
+      return 'UIColor(white:…)';
+    case 'tw-rgb':
+      return 'Tailwind rgb()';
+    case 'tw-hsl':
+      return 'Tailwind hsl()';
+    case 'tw-oklch':
+      return 'Tailwind oklch()';
+    default:
+      return notation;
   }
 }
 
@@ -73,13 +87,15 @@ export function notationsForMatch(
   const dialectNotations = dialectNotationsFor(context, enabledDialects);
   const family = dialectOf(matchNotation);
 
-  const sameFamily = family === 'css'
-    ? cssNotations
-    : dialectNotations.filter((notation) => dialectOf(notation) === family);
+  const sameFamily =
+    family === 'css'
+      ? cssNotations
+      : dialectNotations.filter((notation) => dialectOf(notation) === family);
 
-  const rest = family === 'css'
-    ? dialectNotations
-    : [...cssNotations, ...dialectNotations.filter((notation) => dialectOf(notation) !== family)];
+  const rest =
+    family === 'css'
+      ? dialectNotations
+      : [...cssNotations, ...dialectNotations.filter((notation) => dialectOf(notation) !== family)];
 
   const ordered: AnyOutputNotation[] = [];
   for (const notation of [...sameFamily, ...rest]) {

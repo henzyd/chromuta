@@ -46,13 +46,18 @@ describe('function syntax', () => {
     expect(render('#f00', 'rgb', { functionSyntax: 'legacy' })).toBe('rgb(255, 0, 0)');
     // Note the input is not #ff000080: the hex byte 0x80 is 128/255 = 0.502, so a
     // fixture that wants a clean 0.5 has to say so.
-    expect(render('rgb(255 0 0 / 0.5)', 'rgb', { functionSyntax: 'legacy' })).toBe('rgba(255, 0, 0, 0.5)');
-    expect(render('rgb(255 0 0 / 0.5)', 'hsl', { functionSyntax: 'legacy' })).toBe('hsla(0, 100%, 50%, 0.5)');
+    expect(render('rgb(255 0 0 / 0.5)', 'rgb', { functionSyntax: 'legacy' })).toBe(
+      'rgba(255, 0, 0, 0.5)'
+    );
+    expect(render('rgb(255 0 0 / 0.5)', 'hsl', { functionSyntax: 'legacy' })).toBe(
+      'hsla(0, 100%, 50%, 0.5)'
+    );
   });
 
   it('omits the space after commas when the file does', () => {
-    expect(render('#f00', 'rgb', { functionSyntax: 'legacy', spaceAfterComma: false }))
-      .toBe('rgb(255,0,0)');
+    expect(render('#f00', 'rgb', { functionSyntax: 'legacy', spaceAfterComma: false })).toBe(
+      'rgb(255,0,0)'
+    );
   });
 
   it('uses slash-alpha for notations that have no legacy form', () => {
@@ -60,7 +65,9 @@ describe('function syntax', () => {
   });
 
   it('writes alpha as a percentage on request', () => {
-    expect(render('rgb(255 0 0 / 0.5)', 'rgb', { alphaStyle: 'percent' })).toBe('rgb(255 0 0 / 50%)');
+    expect(render('rgb(255 0 0 / 0.5)', 'rgb', { alphaStyle: 'percent' })).toBe(
+      'rgb(255 0 0 / 50%)'
+    );
     // And the hex byte really does round-trip as 50.2%.
     expect(render('#ff000080', 'rgb', { alphaStyle: 'percent' })).toBe('rgb(255 0 0 / 50.2%)');
   });

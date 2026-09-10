@@ -1,0 +1,7 @@
+# Default reviewer for everything.
+* @henzyd
+
+# The colour engine and the detection rules are the parts where a subtle mistake is
+# hardest to notice, so they always want an explicit look.
+/src/core/           @henzyd
+/.github/workflows/  @henzyd

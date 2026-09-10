@@ -5,35 +5,45 @@
   "version": "0.1.0",
   "license": "MIT",
   "publisher": "chromuta",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/henzyd/chromuta.git"
+  },
+  "bugs": {
+    "url": "https://github.com/henzyd/chromuta/issues"
+  },
+  "homepage": "https://github.com/henzyd/chromuta#readme",
+  "qna": "https://github.com/henzyd/chromuta/issues",
+  "icon": "assets/icon.png",
+  "galleryBanner": {
+    "color": "#0f172a",
+    "theme": "dark"
+  },
+  "keywords": [
+    "color",
+    "colour",
+    "hex",
+    "rgb",
+    "hsl",
+    "oklch",
+    "color converter",
+    "color picker",
+    "palette",
+    "design tokens",
+    "tailwind",
+    "flutter",
+    "swift",
+    "refactor"
+  ],
   "engines": {
-    "vscode": "^1.85.0"
+    "vscode": "^1.85.0",
+    "node": ">=18.0.0"
   },
   "categories": [
     "Formatters",
     "Programming Languages"
   ],
   "main": "./dist/extension.js",
-  "activationEvents": [
-    "onCommand:chromuta.applyRemap",
-    "onCommand:chromuta.extractMapping",
-    "onCommand:chromuta.scanWorkspace",
-    "onLanguage:css",
-    "onLanguage:dart",
-    "onLanguage:html",
-    "onLanguage:java",
-    "onLanguage:javascript",
-    "onLanguage:javascriptreact",
-    "onLanguage:kotlin",
-    "onLanguage:less",
-    "onLanguage:scss",
-    "onLanguage:svelte",
-    "onLanguage:swift",
-    "onLanguage:typescript",
-    "onLanguage:typescriptreact",
-    "onLanguage:vue",
-    "onLanguage:xml",
-    "onView:chromuta.palette"
-  ],
   "contributes": {
     "commands": [
       {
@@ -389,19 +399,56 @@
   "scripts": {
     "build": "node esbuild.js --production",
     "watch": "node esbuild.js --watch",
-    "compile": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "smoke": "node .github/scripts/smoke.mjs",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run build && npm run smoke",
+    "package": "vsce package --out chromuta.vsix",
+    "publish:vscode": "vsce publish --packagePath chromuta.vsix",
+    "publish:openvsx": "ovsx publish chromuta.vsix",
     "vscode:prepublish": "npm run build"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/node": "^20.11.30",
     "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.20.2",
+    "eslint": "^10.10.0",
+    "eslint-config-prettier": "^10.1.8",
+    "ovsx": "^1.2.0",
+    "prettier": "^3.9.6",
     "typescript": "^5.4.3",
+    "typescript-eslint": "^8.70.0",
     "vitest": "^1.4.0"
   },
   "dependencies": {
     "jsonc-parser": "^3.3.1"
-  }
+  },
+  "activationEvents": [
+    "onCommand:chromuta.applyRemap",
+    "onCommand:chromuta.extractMapping",
+    "onCommand:chromuta.scanWorkspace",
+    "onLanguage:css",
+    "onLanguage:dart",
+    "onLanguage:html",
+    "onLanguage:java",
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:kotlin",
+    "onLanguage:less",
+    "onLanguage:scss",
+    "onLanguage:svelte",
+    "onLanguage:swift",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onLanguage:vue",
+    "onLanguage:xml",
+    "onView:chromuta.palette"
+  ]
 }

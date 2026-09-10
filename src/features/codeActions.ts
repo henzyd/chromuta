@@ -51,9 +51,7 @@ export class ChromutaCodeActionProvider implements vscode.CodeActionProvider {
       const text = formatAny(match.color, notation, formatOptions);
       if (text === null || text === match.text) continue;
 
-      actions.push(
-        singleEdit(document, match, text, `Convert to ${text}`)
-      );
+      actions.push(singleEdit(document, match, text, `Convert to ${text}`));
 
       const sameColor = matches.filter(
         (m) => colorKey(m.color) === key && m.confidence >= config.confidenceThreshold

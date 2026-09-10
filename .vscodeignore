@@ -1,8 +1,34 @@
-.vscode/**
+# Everything not needed at runtime. The published package is dist/, the JSON schema,
+# the icon, and the three documents the Marketplace shows.
+
+# Sources and tests: dist/extension.js is the bundle.
 src/**
 test/**
+examples/**
 node_modules/**
+
+# Build and tooling config.
 esbuild.js
 tsconfig.json
 vitest.config.ts
+eslint.config.mjs
+.prettierrc.json
+.prettierignore
+.editorconfig
+package-lock.json
+
+# Repository furniture. README links to these on GitHub, and the Marketplace rewrites
+# relative links to the repository when package.json declares one.
+.github/**
+.vscode/**
+ARCHITECTURE.md
+CONTRIBUTING.md
+CODE_OF_CONDUCT.md
+SECURITY.md
+.gitignore
+.vscodeignore
+
+# Build artefacts.
 **/*.map
+*.vsix
+assets/icon.svg
