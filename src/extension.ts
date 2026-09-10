@@ -3,11 +3,14 @@ import { colorProviderSelector, readConfig, SUPPORTED_LANGUAGES } from './config
 import { ChromutaCodeActionProvider } from './features/codeActions.js';
 import { ChromutaColorProvider } from './features/documentColor.js';
 import { ChromutaHoverProvider } from './features/hover.js';
+import { registerMappingDiagnostics, revealMappingFile } from './features/mappingDiagnostics.js';
 import { registerPaletteView } from './features/paletteTree.js';
 import { SwatchProvider } from './features/swatches.js';
 import { convertColorEverywhere, copyColor, type ColorTarget } from './features/commands/convertColorEverywhere.js';
+import { applyRemap } from './features/commands/applyRemap.js';
 import { convertDocument } from './features/commands/convertDocument.js';
 import { convertSelection } from './features/commands/convertSelection.js';
+import { extractMapping } from './features/commands/extractMapping.js';
 import { clearIndex, runWorkspaceScan } from './features/commands/scanWorkspace.js';
 import { initLogging, log, logError } from './logging.js';
 import { ScanCache } from './workspace/cache.js';
@@ -46,6 +49,10 @@ export function activate(context: vscode.ExtensionContext): void {
     // for every window.
     createWatcher(index, cache, () => palette.provider.refresh()),
 
+    // Validation problems belong on the mapping file itself, so they are visible
+    // where the mistake was made rather than in a notification.
+    registerMappingDiagnostics(),
+
     vscode.commands.registerCommand('chromuta.convertSelection', () =>
       run('convertSelection', convertSelection)
     ),
@@ -66,6 +73,15 @@ export function activate(context: vscode.ExtensionContext): void {
     ),
     vscode.commands.registerCommand('chromuta.copyColor', (target?: ColorTarget) =>
       run('copyColor', () => copyColor(target))
+    ),
+    vscode.commands.registerCommand('chromuta.applyRemap', () =>
+      run('applyRemap', () => applyRemap(index, cache))
+    ),
+    vscode.commands.registerCommand('chromuta.extractMapping', () =>
+      run('extractMapping', () => extractMapping(index, cache))
+    ),
+    vscode.commands.registerCommand('chromuta.openMapping', () =>
+      run('openMapping', revealMappingFile)
     ),
 
     vscode.workspace.onDidChangeConfiguration((event) => {

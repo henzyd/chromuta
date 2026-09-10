@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Chromuta palette mapping",
+  "description": "Maps colors found in a codebase to their replacements.",
+  "type": "object",
+  "required": ["rules"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "integer",
+      "const": 1,
+      "description": "Mapping format version."
+    },
+    "defaultNotation": {
+      "type": "string",
+      "enum": ["hex", "rgb", "hsl", "oklch", "oklab", "lab", "lch", "named"],
+      "description": "Notation every replacement is written in. Without it, each replacement keeps the notation its own \"to\" value was authored in."
+    },
+    "tolerance": {
+      "type": "number",
+      "minimum": 0,
+      "default": 0.02,
+      "description": "Perceptual distance in OKLab within which a color still matches a rule. 0 means exact matches only; about 0.02 is a just-noticeable difference."
+    },
+    "exclude": {
+      "type": "array",
+      "description": "Globs for files the mapping skips, such as snapshots and test fixtures.",
+      "items": { "type": "string" }
+    },
+    "rules": {
+      "type": "array",
+      "description": "Colors to replace. An exact match always wins over a match within tolerance.",
+      "items": {
+        "type": "object",
+        "required": ["from", "to"],
+        "additionalProperties": false,
+        "properties": {
+          "from": {
+            "type": "string",
+            "description": "Color to look for, in any notation Chromuta reads.",
+            "minLength": 1
+          },
+          "to": {
+            "type": "string",
+            "description": "Color to write instead, in any notation Chromuta reads.",
+            "minLength": 1
+          },
+          "tolerance": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Overrides the mapping-level tolerance for this rule."
+          }
+        }
+      }
+    }
+  }
+}

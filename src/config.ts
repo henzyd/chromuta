@@ -27,6 +27,7 @@ export interface ChromutaConfig {
   readonly maxFiles: number;
   readonly cacheEnabled: boolean;
   readonly hoverEnabled: boolean;
+  readonly mappingFile: string;
 }
 
 const FORMAT_KEYS: readonly (keyof FormatOptions)[] = [
@@ -61,7 +62,8 @@ export function readConfig(scope?: vscode.Uri): ChromutaConfig {
     exclude: cfg.get<string[]>('exclude', ['**/node_modules/**']),
     maxFiles: cfg.get<number>('maxFiles', 20000),
     cacheEnabled: cfg.get<boolean>('cache.enabled', true),
-    hoverEnabled: cfg.get<boolean>('hover.enabled', true)
+    hoverEnabled: cfg.get<boolean>('hover.enabled', true),
+    mappingFile: cfg.get<string>('mappingFile', 'chromuta.mapping.json')
   };
 }
 

@@ -14,6 +14,8 @@
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
+    "onCommand:chromuta.applyRemap",
+    "onCommand:chromuta.extractMapping",
     "onCommand:chromuta.scanWorkspace",
     "onLanguage:css",
     "onLanguage:html",
@@ -68,6 +70,24 @@
         "title": "Copy Color Value",
         "category": "Chromuta",
         "icon": "$(copy)"
+      },
+      {
+        "command": "chromuta.applyRemap",
+        "title": "Apply Palette Mapping",
+        "category": "Chromuta",
+        "icon": "$(replace-all)"
+      },
+      {
+        "command": "chromuta.extractMapping",
+        "title": "Extract Palette Mapping from Workspace",
+        "category": "Chromuta",
+        "icon": "$(export)"
+      },
+      {
+        "command": "chromuta.openMapping",
+        "title": "Open Palette Mapping File",
+        "category": "Chromuta",
+        "icon": "$(go-to-file)"
       }
     ],
     "menus": {
@@ -93,6 +113,21 @@
           "command": "chromuta.clearIndex",
           "when": "view == chromuta.palette",
           "group": "1_state@1"
+        },
+        {
+          "command": "chromuta.extractMapping",
+          "when": "view == chromuta.palette",
+          "group": "2_mapping@1"
+        },
+        {
+          "command": "chromuta.applyRemap",
+          "when": "view == chromuta.palette",
+          "group": "2_mapping@2"
+        },
+        {
+          "command": "chromuta.openMapping",
+          "when": "view == chromuta.palette",
+          "group": "2_mapping@3"
         }
       ],
       "view/item/context": [
@@ -271,6 +306,11 @@
           "type": "boolean",
           "default": true,
           "description": "Show a color preview and a conversion table on hover."
+        },
+        "chromuta.mappingFile": {
+          "type": "string",
+          "default": "chromuta.mapping.json",
+          "description": "Palette mapping file, resolved against the first workspace folder."
         }
       }
     },
@@ -297,6 +337,15 @@
         "view": "chromuta.palette",
         "contents": "No colors indexed yet.\n[Scan Workspace](command:chromuta.scanWorkspace)",
         "when": "!chromuta.hasIndex"
+      }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": [
+          "chromuta.mapping.json",
+          "*.chromuta.json"
+        ],
+        "url": "./schemas/mapping.schema.json"
       }
     ]
   },
