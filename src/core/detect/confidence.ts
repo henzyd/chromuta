@@ -18,6 +18,21 @@ const URL_CONTEXT = /(href\s*=|src\s*=|url\s*\(|https?:\/\/|\]\()[^\s]*$/i;
 
 const FIXTURE_PATH = /(__snapshots__|__fixtures__|\.snap$|[/\\]fixtures?[/\\]|\.test\.|\.spec\.)/i;
 
+/**
+ * Words that make a raw integer literal plausibly a color.
+ *
+ * `0xFF3B82F6` is a valid ARGB color and an equally valid bitmask. Nothing in the
+ * literal itself distinguishes them, so the surrounding identifier is the only signal
+ * available short of parsing the file.
+ *
+ * Matched as substrings rather than whole words, because the names that carry the
+ * signal are overwhelmingly camelCase: `brandColor` and `surfaceTint` contain no word
+ * boundary before `Color` or `Tint`. Being generous is the right error here, since
+ * this evidence only ever raises confidence.
+ */
+const COLOR_CONTEXT =
+  /colou?r|tint|shade|swatch|palette|theme|brand|background|foreground|fill|stroke|border|accent|surface|primary|secondary|scaffold|material|argb|rgba?/i;
+
 export interface Scored {
   confidence: number;
   flags: string[];
@@ -95,6 +110,15 @@ export function scoreMatch(
     // A color keyword should sit on the value side of a declaration or assignment.
     if (!/[:=]\s*[^:=]*$/.test(before)) {
       penalize(0.4, 'not in a property-value position');
+    }
+  }
+
+  // A bare `0x…` integer carries no syntax that says "color". Matches inside
+  // `Color(0x…)` are claimed by a longer pattern, so anything reaching here is
+  // genuinely bare and only the surrounding line can vouch for it.
+  if (match.notation === 'argb-hex') {
+    if (!COLOR_CONTEXT.test(line)) {
+      penalize(0.55, 'bare integer literal with nothing to suggest it is a color');
     }
   }
 

@@ -1,10 +1,6 @@
 import { NAMED_COLOR_LIST } from '../color/named.js';
-import type { ColorNotation } from '../color/types.js';
-
-export interface Pattern {
-  readonly notation: ColorNotation;
-  readonly regex: RegExp;
-}
+import { parseColor } from '../color/parse.js';
+import type { DialectPattern } from '../dialects/types.js';
 
 /**
  * Hex literals.
@@ -36,11 +32,18 @@ export const NAMED_PATTERN = (() => {
   return new RegExp(`\\b(?:${sorted.join('|')})\\b`, 'gi');
 })();
 
-/** Patterns applied to every file. Named colors are added separately, since they are opt-in. */
-export const CORE_PATTERNS: readonly Pattern[] = [
-  { notation: 'hex', regex: HEX_PATTERN },
-  { notation: 'rgb', regex: FUNCTION_PATTERN },
-  { notation: 'color', regex: COLOR_FUNCTION_PATTERN }
+/** Priority sits below the dialect patterns, which claim overlapping spans deliberately. */
+const CSS_PRIORITY = 10;
+
+export const CORE_PATTERNS: readonly DialectPattern[] = [
+  { notation: 'hex', regex: HEX_PATTERN, parse: parseColor, priority: CSS_PRIORITY },
+  { notation: 'rgb', regex: FUNCTION_PATTERN, parse: parseColor, priority: CSS_PRIORITY },
+  { notation: 'color', regex: COLOR_FUNCTION_PATTERN, parse: parseColor, priority: CSS_PRIORITY }
 ];
 
-export const NAMED_PATTERN_ENTRY: Pattern = { notation: 'named', regex: NAMED_PATTERN };
+export const NAMED_PATTERN_ENTRY: DialectPattern = {
+  notation: 'named',
+  regex: NAMED_PATTERN,
+  parse: parseColor,
+  priority: CSS_PRIORITY - 2
+};

@@ -35,6 +35,15 @@ export function inferStyle(matches: readonly ColorMatch[]): StyleProfile {
   for (const m of matches) {
     const raw = m.text;
 
+    // Platform hex forms carry the same casing signal as CSS hex. A Flutter file
+    // written in `Color(0xFF3B82F6)` should keep producing uppercase.
+    if (m.notation === 'argb-hex' || m.notation === 'android-hex' || m.notation === 'dart-color') {
+      const digits = raw.replace(/^.*?(?:0[xX]|#)/, '').replace(/\).*$/, '');
+      if (/[A-F]/.test(digits)) upperHex++;
+      else if (/[a-f]/.test(digits)) lowerHex++;
+      continue;
+    }
+
     if (m.notation === 'hex') {
       const digits = raw.slice(1);
       // Digit-only values such as #003 carry no casing signal.

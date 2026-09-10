@@ -1,4 +1,5 @@
 import type { Color, ColorNotation } from '../color/types.js';
+import type { DialectId } from '../dialects/types.js';
 
 /** A regex hit, before parsing or scoring. */
 export interface RawMatch {
@@ -25,6 +26,8 @@ export interface ScanContext {
   readonly filePath?: string;
   /** Detect CSS named colors. Off means `tomato` is never a match. */
   readonly namedColors?: boolean;
+  /** Non-CSS dialects to enable. CSS is always on. */
+  readonly dialects?: readonly DialectId[];
 }
 
 /** Half-open ranges of the text that sit inside comments. */

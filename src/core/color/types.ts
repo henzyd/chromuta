@@ -1,5 +1,5 @@
-/** Every notation Chromuta can read or write. */
-export type ColorNotation =
+/** CSS notations Chromuta can read or write. */
+export type CssNotation =
   | 'hex'
   | 'rgb'
   | 'hsl'
@@ -11,16 +11,69 @@ export type ColorNotation =
   | 'named'
   | 'color';
 
-/** Notations that can be produced as output. */
-export type OutputNotation = Exclude<ColorNotation, 'hwb' | 'color'>;
+/**
+ * Notations belonging to a specific platform rather than to CSS.
+ *
+ * These exist so a rewrite stays in the idiom of the file it is in. Converting
+ * `Color(0xFF3B82F6)` in a Dart file has to produce another Dart color, not `#2563eb`.
+ */
+export type DialectNotation =
+  // Flutter / Dart
+  | 'dart-color'
+  | 'dart-argb'
+  | 'dart-rgbo'
+  // Android and Flutter raw integer literals
+  | 'argb-hex'
+  // Android resource XML, where 4- and 8-digit hex puts alpha first
+  | 'android-hex'
+  // Swift and SwiftUI
+  | 'swift-uicolor'
+  | 'swift-nscolor'
+  | 'swift-color'
+  | 'swift-hsb'
+  | 'swift-white'
+  // Tailwind arbitrary values, where spaces are written as underscores
+  | 'tw-rgb'
+  | 'tw-hsl'
+  | 'tw-oklch';
 
-/** The same set at runtime, for validating user-supplied values. */
+export type ColorNotation = CssNotation | DialectNotation;
+
+/** CSS notations that can be produced as output. */
+export type OutputNotation = Exclude<CssNotation, 'hwb' | 'color'>;
+
+/** Dialect notations that can be produced as output. */
+export type DialectOutputNotation = Exclude<DialectNotation, 'swift-hsb' | 'swift-white'>;
+
+/** Anything Chromuta can write. */
+export type AnyOutputNotation = OutputNotation | DialectOutputNotation;
+
+/** The same sets at runtime, for validating user-supplied values. */
 export const OUTPUT_NOTATIONS: readonly OutputNotation[] = [
   'hex', 'rgb', 'hsl', 'oklch', 'oklab', 'lab', 'lch', 'named'
 ];
 
+export const DIALECT_OUTPUT_NOTATIONS: readonly DialectOutputNotation[] = [
+  'dart-color', 'dart-argb', 'dart-rgbo', 'argb-hex', 'android-hex',
+  'swift-uicolor', 'swift-nscolor', 'swift-color',
+  'tw-rgb', 'tw-hsl', 'tw-oklch'
+];
+
+export const ALL_OUTPUT_NOTATIONS: readonly AnyOutputNotation[] = [
+  ...OUTPUT_NOTATIONS,
+  ...DIALECT_OUTPUT_NOTATIONS
+];
+
 export function isOutputNotation(value: unknown): value is OutputNotation {
   return typeof value === 'string' && (OUTPUT_NOTATIONS as readonly string[]).includes(value);
+}
+
+export function isDialectNotation(value: unknown): value is DialectOutputNotation {
+  return typeof value === 'string' && (DIALECT_OUTPUT_NOTATIONS as readonly string[]).includes(value);
+}
+
+export function isAnyOutputNotation(value: unknown): value is AnyOutputNotation {
+  return isOutputNotation(value) || isDialectNotation(value);
 }
 
 /**
