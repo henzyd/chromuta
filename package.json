@@ -1,0 +1,178 @@
+{
+  "name": "chromuta",
+  "displayName": "Chromuta",
+  "description": "Find hard-coded color literals and convert them between notations.",
+  "version": "0.1.0",
+  "license": "MIT",
+  "publisher": "chromuta",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Formatters",
+    "Programming Languages"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:css",
+    "onLanguage:scss",
+    "onLanguage:less",
+    "onLanguage:html",
+    "onLanguage:javascript",
+    "onLanguage:javascriptreact",
+    "onLanguage:typescript",
+    "onLanguage:typescriptreact",
+    "onLanguage:vue",
+    "onLanguage:svelte"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "chromuta.convertSelection",
+        "title": "Chromuta: Convert Color Under Cursor"
+      },
+      {
+        "command": "chromuta.convertDocument",
+        "title": "Chromuta: Convert All Colors in File"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "chromuta.convertSelection",
+          "group": "1_modification@10"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Chromuta",
+      "properties": {
+        "chromuta.defaultNotation": {
+          "type": "string",
+          "enum": [
+            "hex",
+            "rgb",
+            "hsl",
+            "oklch",
+            "oklab",
+            "lab",
+            "lch"
+          ],
+          "default": "hex",
+          "description": "Notation used by 'Convert All Colors in File' when no target is chosen."
+        },
+        "chromuta.notations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "hex",
+              "rgb",
+              "hsl",
+              "oklch",
+              "oklab",
+              "lab",
+              "lch",
+              "named"
+            ]
+          },
+          "default": [
+            "hex",
+            "rgb",
+            "hsl",
+            "oklch"
+          ],
+          "description": "Notations offered in the color picker and the conversion quick pick."
+        },
+        "chromuta.namedColors.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Detect CSS named colors such as 'tomato'. Restricted to CSS-family files in a property-value position, since these words are common identifiers elsewhere."
+        },
+        "chromuta.confidenceThreshold": {
+          "type": "number",
+          "default": 0.5,
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Matches scoring below this are ignored by bulk conversion. Lower it to catch more, raise it to reduce false positives."
+        },
+        "chromuta.inferStyleFromFile": {
+          "type": "boolean",
+          "default": true,
+          "description": "Match the hex casing and function syntax already used by other colors in the same file, rather than always applying the configured defaults."
+        },
+        "chromuta.format.hexCase": {
+          "type": "string",
+          "enum": [
+            "lower",
+            "upper"
+          ],
+          "default": "lower",
+          "description": "Casing for hex output."
+        },
+        "chromuta.format.shorthandHex": {
+          "type": "boolean",
+          "default": true,
+          "description": "Collapse #ffffff to #fff when the shorthand is exact."
+        },
+        "chromuta.format.functionSyntax": {
+          "type": "string",
+          "enum": [
+            "modern",
+            "legacy"
+          ],
+          "default": "modern",
+          "description": "'modern' writes rgb(0 0 0 / 50%), 'legacy' writes rgba(0, 0, 0, 0.5)."
+        },
+        "chromuta.format.alphaStyle": {
+          "type": "string",
+          "enum": [
+            "number",
+            "percent"
+          ],
+          "default": "number",
+          "description": "Whether alpha is written as 0.5 or 50%."
+        },
+        "chromuta.format.precision": {
+          "type": "number",
+          "default": 3,
+          "minimum": 0,
+          "maximum": 6,
+          "description": "Decimal places for fractional channel values."
+        },
+        "chromuta.documentColor.excludeLanguages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "css",
+            "scss",
+            "less"
+          ],
+          "description": "Languages where Chromuta will not draw its own color swatches. Defaults to the CSS family because VS Code already ships a color provider for those, and two providers on one range render duplicate swatches."
+        },
+        "chromuta.format.spaceAfterComma": {
+          "type": "boolean",
+          "default": true,
+          "description": "Write a space after commas in legacy function syntax, as in rgb(0, 0, 0)."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "compile": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "vscode:prepublish": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/vscode": "^1.85.0",
+    "esbuild": "^0.20.2",
+    "typescript": "^5.4.3",
+    "vitest": "^1.4.0"
+  }
+}
