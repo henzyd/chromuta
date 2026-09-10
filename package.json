@@ -14,33 +14,111 @@
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
+    "onCommand:chromuta.scanWorkspace",
     "onLanguage:css",
-    "onLanguage:scss",
-    "onLanguage:less",
     "onLanguage:html",
     "onLanguage:javascript",
     "onLanguage:javascriptreact",
+    "onLanguage:less",
+    "onLanguage:scss",
+    "onLanguage:svelte",
     "onLanguage:typescript",
     "onLanguage:typescriptreact",
     "onLanguage:vue",
-    "onLanguage:svelte"
+    "onView:chromuta.palette"
   ],
   "contributes": {
     "commands": [
       {
         "command": "chromuta.convertSelection",
-        "title": "Chromuta: Convert Color Under Cursor"
+        "title": "Convert Color Under Cursor",
+        "category": "Chromuta"
       },
       {
         "command": "chromuta.convertDocument",
-        "title": "Chromuta: Convert All Colors in File"
+        "title": "Convert All Colors in File",
+        "category": "Chromuta"
+      },
+      {
+        "command": "chromuta.scanWorkspace",
+        "title": "Scan Workspace for Colors",
+        "category": "Chromuta",
+        "icon": "$(search)"
+      },
+      {
+        "command": "chromuta.refreshPalette",
+        "title": "Refresh Palette",
+        "category": "Chromuta",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "chromuta.clearIndex",
+        "title": "Clear Color Index",
+        "category": "Chromuta",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "chromuta.convertColorEverywhere",
+        "title": "Convert This Color Across the Workspace",
+        "category": "Chromuta",
+        "icon": "$(replace-all)"
+      },
+      {
+        "command": "chromuta.copyColor",
+        "title": "Copy Color Value",
+        "category": "Chromuta",
+        "icon": "$(copy)"
       }
     ],
     "menus": {
       "editor/context": [
         {
           "command": "chromuta.convertSelection",
-          "group": "1_modification@10"
+          "group": "1_modification@10",
+          "when": "chromuta.supportedLanguage"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "chromuta.scanWorkspace",
+          "when": "view == chromuta.palette",
+          "group": "navigation@1"
+        },
+        {
+          "command": "chromuta.refreshPalette",
+          "when": "view == chromuta.palette",
+          "group": "navigation@2"
+        },
+        {
+          "command": "chromuta.clearIndex",
+          "when": "view == chromuta.palette",
+          "group": "1_state@1"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "chromuta.convertColorEverywhere",
+          "when": "view == chromuta.palette && viewItem == chromutaColor",
+          "group": "inline@1"
+        },
+        {
+          "command": "chromuta.copyColor",
+          "when": "view == chromuta.palette && viewItem == chromutaColor",
+          "group": "inline@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "chromuta.refreshPalette",
+          "when": "false"
+        },
+        {
+          "command": "chromuta.convertColorEverywhere",
+          "when": "false"
+        },
+        {
+          "command": "chromuta.copyColor",
+          "when": "false"
         }
       ]
     },
@@ -156,9 +234,71 @@
           "type": "boolean",
           "default": true,
           "description": "Write a space after commas in legacy function syntax, as in rgb(0, 0, 0)."
+        },
+        "chromuta.include": {
+          "type": "string",
+          "default": "**/*.{css,scss,sass,less,styl,html,vue,svelte,astro,js,jsx,ts,tsx,json,jsonc,yaml,yml,md,xml}",
+          "description": "Glob for files the workspace scan reads."
+        },
+        "chromuta.exclude": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/out/**",
+            "**/*.min.*",
+            "**/vendor/**",
+            "**/.git/**"
+          ],
+          "description": "Globs the workspace scan skips. These are added to your files.exclude and search.exclude settings rather than replacing them."
+        },
+        "chromuta.maxFiles": {
+          "type": "number",
+          "default": 20000,
+          "minimum": 1,
+          "description": "Upper bound on files read in one scan, so a very large repository cannot stall the scan indefinitely."
+        },
+        "chromuta.cache.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Reuse results for files whose size and modification time are unchanged since the last scan."
+        },
+        "chromuta.hover.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show a color preview and a conversion table on hover."
         }
       }
-    }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "chromuta",
+          "title": "Chromuta",
+          "icon": "$(symbol-color)"
+        }
+      ]
+    },
+    "views": {
+      "chromuta": [
+        {
+          "id": "chromuta.palette",
+          "name": "Workspace Palette",
+          "icon": "$(symbol-color)"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "chromuta.palette",
+        "contents": "No colors indexed yet.\n[Scan Workspace](command:chromuta.scanWorkspace)",
+        "when": "!chromuta.hasIndex"
+      }
+    ]
   },
   "scripts": {
     "build": "node esbuild.js --production",

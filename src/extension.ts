@@ -1,35 +1,90 @@
 import * as vscode from 'vscode';
-import { colorProviderSelector, readConfig } from './config.js';
+import { colorProviderSelector, readConfig, SUPPORTED_LANGUAGES } from './config.js';
+import { ChromutaCodeActionProvider } from './features/codeActions.js';
 import { ChromutaColorProvider } from './features/documentColor.js';
+import { ChromutaHoverProvider } from './features/hover.js';
+import { registerPaletteView } from './features/paletteTree.js';
+import { SwatchProvider } from './features/swatches.js';
+import { convertColorEverywhere, copyColor, type ColorTarget } from './features/commands/convertColorEverywhere.js';
 import { convertDocument } from './features/commands/convertDocument.js';
 import { convertSelection } from './features/commands/convertSelection.js';
+import { clearIndex, runWorkspaceScan } from './features/commands/scanWorkspace.js';
 import { initLogging, log, logError } from './logging.js';
+import { ScanCache } from './workspace/cache.js';
+import { ColorIndex } from './workspace/index.js';
+import { createWatcher } from './workspace/watcher.js';
 
-/** Disposable for the color provider, re-registered when its language filter changes. */
+/** Re-registered when its language filter changes, since a selector is fixed at registration. */
 let colorProviderRegistration: vscode.Disposable | undefined;
 
 export function activate(context: vscode.ExtensionContext): void {
   initLogging(context);
-  log('Chromuta activated');
+
+  const config = readConfig();
+  const index = new ColorIndex();
+  const cache = new ScanCache(context.workspaceState, config.cacheEnabled);
+  const swatches = new SwatchProvider(vscode.Uri.joinPath(context.globalStorageUri, 'swatches'));
+
+  context.subscriptions.push(index);
+
+  const palette = registerPaletteView(index, swatches);
+  context.subscriptions.push(...palette.disposables);
 
   registerColorProvider(context);
 
+  const selector = SUPPORTED_LANGUAGES.map((language) => ({ language, scheme: 'file' as const }));
+
   context.subscriptions.push(
+    vscode.languages.registerHoverProvider(selector, new ChromutaHoverProvider(index)),
+
+    vscode.languages.registerCodeActionsProvider(selector, new ChromutaCodeActionProvider(index), {
+      providedCodeActionKinds: ChromutaCodeActionProvider.providedCodeActionKinds
+    }),
+
+    // The index is intentionally not populated here. A cold scan of a large repository
+    // is the one slow operation, and doing it during activation would delay startup
+    // for every window.
+    createWatcher(index, cache, () => palette.provider.refresh()),
+
     vscode.commands.registerCommand('chromuta.convertSelection', () =>
       run('convertSelection', convertSelection)
     ),
     vscode.commands.registerCommand('chromuta.convertDocument', () =>
       run('convertDocument', convertDocument)
     ),
+    vscode.commands.registerCommand('chromuta.scanWorkspace', () =>
+      run('scanWorkspace', () => runWorkspaceScan(index, cache))
+    ),
+    vscode.commands.registerCommand('chromuta.clearIndex', () =>
+      run('clearIndex', () => clearIndex(index, cache))
+    ),
+    vscode.commands.registerCommand('chromuta.refreshPalette', () => {
+      palette.provider.refresh();
+    }),
+    vscode.commands.registerCommand('chromuta.convertColorEverywhere', (target?: ColorTarget) =>
+      run('convertColorEverywhere', () => convertColorEverywhere(index, target))
+    ),
+    vscode.commands.registerCommand('chromuta.copyColor', (target?: ColorTarget) =>
+      run('copyColor', () => copyColor(target))
+    ),
+
     vscode.workspace.onDidChangeConfiguration((event) => {
-      // The provider's language filter is fixed at registration time, so a change to
-      // the exclusion list only takes effect if we register again.
       if (event.affectsConfiguration('chromuta.documentColor.excludeLanguages')) {
         registerColorProvider(context);
       }
+      if (event.affectsConfiguration('chromuta.confidenceThreshold')) {
+        // The threshold decides which group a color falls into, so the view is stale.
+        palette.provider.refresh();
+      }
     }),
+
+    vscode.window.onDidChangeActiveTextEditor(updateLanguageContext),
+
     new vscode.Disposable(() => colorProviderRegistration?.dispose())
   );
+
+  updateLanguageContext(vscode.window.activeTextEditor);
+  log('Chromuta activated');
 }
 
 export function deactivate(): void {
@@ -44,6 +99,12 @@ function registerColorProvider(context: vscode.ExtensionContext): void {
     new ChromutaColorProvider()
   );
   context.subscriptions.push(colorProviderRegistration);
+}
+
+/** Gates the editor context menu item, so it does not appear in unrelated files. */
+function updateLanguageContext(editor: vscode.TextEditor | undefined): void {
+  const supported = editor !== undefined && SUPPORTED_LANGUAGES.includes(editor.document.languageId);
+  void vscode.commands.executeCommand('setContext', 'chromuta.supportedLanguage', supported);
 }
 
 /** Commands must not let an exception surface as an unhandled rejection. */
