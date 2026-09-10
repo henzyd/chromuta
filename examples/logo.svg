@@ -1,0 +1,8 @@
+<!-- An SVG is XML but is not an Android resource, so eight-digit hex here is
+     #RRGGBBAA with CSS semantics. Reading it alpha-first would silently change
+     the color, which is why the Android dialect is gated on path, not language. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" fill="#3b82f6"/>
+  <circle cx="16" cy="16" r="8" fill="#FF3B82F6"/>
+  <path d="M4 28h24" stroke="#0f172a" stroke-width="2"/>
+</svg>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- An Android resource file. Requires "android" in chromuta.dialects.
+     Eight-digit hex here is #AARRGGBB, so the leading FF is alpha, not red. -->
+<resources>
+    <color name="brand">#FF3B82F6</color>
+    <color name="brand_pressed">#FF2563EB</color>
+    <color name="surface">#FFFFFFFF</color>
+    <color name="scrim">#803B82F6</color>
+
+    <!-- Six digits means the same thing here as in CSS. -->
+    <color name="ink">#0F172A</color>
+</resources>
