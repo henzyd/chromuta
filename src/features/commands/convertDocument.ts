@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { formatColor, isLossyConversion } from '../../core/color/format.js';
+import { formatAny, isLossyAny, notationsForMatch } from '../../core/notation.js';
 import type { ColorMatch } from '../../core/detect/types.js';
 import { readConfig } from '../../config.js';
-import { rangeOf, scanDocument } from '../documentScan.js';
+import { dialectContextFor, rangeOf, scanDocument } from '../documentScan.js';
 import { pickNotation } from './pickNotation.js';
 
 /** Convert every confident color in the active file to one notation. */
@@ -31,20 +31,25 @@ export async function convertDocument(): Promise<void> {
 
   const choice = await pickNotation(
     confident[0]!.color,
-    config.notations,
+    notationsForMatch(
+      confident[0]!.notation,
+      dialectContextFor(document),
+      config.dialects,
+      config.notations
+    ),
     formatOptions,
     `Convert ${confident.length} colors in ${document.fileName.split(/[/\\]/).pop()}`
   );
   if (!choice) return;
 
-  const lossy = confident.filter((m) => isLossyConversion(m.color, choice.notation));
+  const lossy = confident.filter((m) => isLossyAny(m.color, choice.notation));
   if (lossy.length > 0 && !(await confirmLossy(lossy, choice.notation))) return;
 
   const edit = new vscode.WorkspaceEdit();
   let converted = 0;
 
   for (const match of confident) {
-    const text = formatColor(match.color, choice.notation, formatOptions);
+    const text = formatAny(match.color, choice.notation, formatOptions);
     if (text === null || text === match.text) continue;
     edit.replace(document.uri, rangeOf(document, match), text);
     converted++;

@@ -18,15 +18,20 @@
     "onCommand:chromuta.extractMapping",
     "onCommand:chromuta.scanWorkspace",
     "onLanguage:css",
+    "onLanguage:dart",
     "onLanguage:html",
+    "onLanguage:java",
     "onLanguage:javascript",
     "onLanguage:javascriptreact",
+    "onLanguage:kotlin",
     "onLanguage:less",
     "onLanguage:scss",
     "onLanguage:svelte",
+    "onLanguage:swift",
     "onLanguage:typescript",
     "onLanguage:typescriptreact",
     "onLanguage:vue",
+    "onLanguage:xml",
     "onView:chromuta.palette"
   ],
   "contributes": {
@@ -272,7 +277,7 @@
         },
         "chromuta.include": {
           "type": "string",
-          "default": "**/*.{css,scss,sass,less,styl,html,vue,svelte,astro,js,jsx,ts,tsx,json,jsonc,yaml,yml,md,xml}",
+          "default": "**/*.{css,scss,sass,less,styl,html,vue,svelte,astro,js,jsx,ts,tsx,json,jsonc,yaml,yml,md,xml,dart,swift,kt,kts,java,m,mm}",
           "description": "Glob for files the workspace scan reads."
         },
         "chromuta.exclude": {
@@ -311,6 +316,38 @@
           "type": "string",
           "default": "chromuta.mapping.json",
           "description": "Palette mapping file, resolved against the first workspace folder."
+        },
+        "chromuta.dialects": {
+          "type": "array",
+          "description": "Non-CSS color notations to detect. CSS is always on. Flutter reads Color(0x\u2026) and Color.fromARGB; android reads alpha-first hex in resource files; swift reads UIColor and SwiftUI Color initializers; tailwind reads underscore-separated values inside arbitrary-value brackets. Each dialect only applies to files of its own languages, so leaving them all on costs nothing in a project that uses none of them.",
+          "items": {
+            "type": "string",
+            "enum": [
+              "tailwind",
+              "flutter",
+              "android",
+              "swift"
+            ],
+            "enumDescriptions": [
+              "Tailwind arbitrary values, e.g. text-[rgb(0_0_0)]",
+              "Flutter and Dart, e.g. Color(0xFF3B82F6)",
+              "Android resource XML and JVM integer literals, where hex puts alpha first",
+              "Swift and SwiftUI, e.g. UIColor(red: 0.2, green: 0.4, blue: 0.8, alpha: 1)"
+            ]
+          },
+          "uniqueItems": true,
+          "default": [
+            "tailwind",
+            "flutter",
+            "android",
+            "swift"
+          ]
+        },
+        "chromuta.maxFileSize": {
+          "type": "number",
+          "default": 2000000,
+          "minimum": 1024,
+          "description": "Files larger than this many bytes are skipped by the workspace scan. Generated bundles and data blobs rarely hold colors worth editing and are slow to read."
         }
       }
     },

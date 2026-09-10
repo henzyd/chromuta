@@ -1,12 +1,15 @@
 import * as vscode from 'vscode';
 import { DEFAULT_FORMAT_OPTIONS, type FormatOptions, type OutputNotation } from './core/color/types.js';
+import { isDialectId, type DialectId } from './core/dialects/types.js';
 
 /** Languages Chromuta scans and offers conversions in. */
 export const SUPPORTED_LANGUAGES: readonly string[] = [
   'css', 'scss', 'less', 'sass', 'postcss', 'stylus',
   'html', 'vue', 'svelte', 'astro',
   'javascript', 'javascriptreact', 'typescript', 'typescriptreact',
-  'json', 'jsonc', 'yaml', 'markdown', 'xml'
+  'json', 'jsonc', 'yaml', 'markdown', 'xml',
+  // Platform dialects.
+  'dart', 'swift', 'objective-c', 'objective-cpp', 'kotlin', 'java'
 ];
 
 export interface ChromutaConfig {
@@ -28,6 +31,8 @@ export interface ChromutaConfig {
   readonly cacheEnabled: boolean;
   readonly hoverEnabled: boolean;
   readonly mappingFile: string;
+  readonly dialects: readonly DialectId[];
+  readonly maxFileSize: number;
 }
 
 const FORMAT_KEYS: readonly (keyof FormatOptions)[] = [
@@ -63,7 +68,9 @@ export function readConfig(scope?: vscode.Uri): ChromutaConfig {
     maxFiles: cfg.get<number>('maxFiles', 20000),
     cacheEnabled: cfg.get<boolean>('cache.enabled', true),
     hoverEnabled: cfg.get<boolean>('hover.enabled', true),
-    mappingFile: cfg.get<string>('mappingFile', 'chromuta.mapping.json')
+    mappingFile: cfg.get<string>('mappingFile', 'chromuta.mapping.json'),
+    dialects: (cfg.get<string[]>('dialects', ['css', 'tailwind']) ?? []).filter(isDialectId),
+    maxFileSize: cfg.get<number>('maxFileSize', 2_000_000)
   };
 }
 

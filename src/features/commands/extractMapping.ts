@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { formatColor } from '../../core/color/format.js';
+import { formatAny } from '../../core/notation.js';
 import { renderMappingTemplate, type MappingTemplateEntry } from '../../core/remap/template.js';
 import { readConfig } from '../../config.js';
 import type { ColorIndex } from '../../workspace/index.js';
@@ -29,8 +29,8 @@ export async function extractMapping(index: ColorIndex, cache: ScanCache): Promi
   const entries: MappingTemplateEntry[] = [];
   for (const entry of palette) {
     const value =
-      formatColor(entry.color, config.defaultNotation, config.format) ??
-      formatColor(entry.color, 'hex', config.format);
+      formatAny(entry.color, config.defaultNotation, config.format) ??
+      formatAny(entry.color, 'hex', config.format);
     if (!value) continue;
     entries.push({ value, occurrences: entry.occurrences.length, files: entry.fileCount });
   }

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { colorKey } from '../../core/color/distance.js';
-import { formatColor, isLossyConversion } from '../../core/color/format.js';
-import type { OutputNotation } from '../../core/color/types.js';
+import { formatAny, isLossyAny, notationLabel } from '../../core/notation.js';
+import { ALL_OUTPUT_NOTATIONS, type AnyOutputNotation } from '../../core/color/types.js';
 import { readConfig } from '../../config.js';
 import { log } from '../../logging.js';
 import type { ColorIndex, PaletteEntry } from '../../workspace/index.js';
@@ -44,9 +44,11 @@ export async function convertColorEverywhere(
     return;
   }
 
+  // A color can appear in files of different dialects, so every writable notation is
+  // on offer here rather than only the ones valid in the active editor.
   const choice = await pickNotation(
     entry.color,
-    config.notations,
+    ALL_OUTPUT_NOTATIONS,
     config.format,
     `Convert ${entry.occurrences.length} occurrence(s) in ${entry.fileCount} file(s)`
   );
@@ -61,7 +63,7 @@ export async function convertColorEverywhere(
     return;
   }
 
-  const lossy = isLossyConversion(entry.color, choice.notation);
+  const lossy = isLossyAny(entry.color, choice.notation);
   if (lossy && !(await confirmLossy(choice.notation))) return;
 
   const { edit, count } = buildEdit(current, choice.notation, config);
@@ -81,7 +83,7 @@ export async function convertColorEverywhere(
   }
 
   void vscode.window.showInformationMessage(
-    `Chromuta: converted ${count} occurrence(s) to ${choice.notation}.`
+    `Chromuta: converted ${count} occurrence(s) to ${notationLabel(choice.notation)}.`
   );
 }
 
@@ -132,7 +134,7 @@ async function collectCurrentOccurrences(
 
 function buildEdit(
   files: readonly FileOccurrences[],
-  notation: OutputNotation,
+  notation: AnyOutputNotation,
   config: ReturnType<typeof readConfig>
 ): { edit: vscode.WorkspaceEdit; count: number } {
   const edit = new vscode.WorkspaceEdit();
@@ -142,7 +144,7 @@ function buildEdit(
     const relative = vscode.workspace.asRelativePath(file.uri, false);
 
     for (const match of file.matches) {
-      const text = formatColor(match.color, notation, config.format);
+      const text = formatAny(match.color, notation, config.format);
       if (text === null || text === match.text) continue;
 
       const range = new vscode.Range(
@@ -181,8 +183,8 @@ export async function copyColor(target: ColorTarget | undefined): Promise<void> 
   if (!entry) return;
 
   const text =
-    formatColor(entry.color, config.defaultNotation, config.format) ??
-    formatColor(entry.color, 'hex', config.format);
+    formatAny(entry.color, config.defaultNotation, config.format) ??
+    formatAny(entry.color, 'hex', config.format);
 
   if (!text) return;
 

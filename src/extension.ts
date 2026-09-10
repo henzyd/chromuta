@@ -4,6 +4,7 @@ import { ChromutaCodeActionProvider } from './features/codeActions.js';
 import { ChromutaColorProvider } from './features/documentColor.js';
 import { ChromutaHoverProvider } from './features/hover.js';
 import { registerMappingDiagnostics, revealMappingFile } from './features/mappingDiagnostics.js';
+import { clearDocumentScanCache } from './features/documentScan.js';
 import { registerPaletteView } from './features/paletteTree.js';
 import { SwatchProvider } from './features/swatches.js';
 import { convertColorEverywhere, copyColor, type ColorTarget } from './features/commands/convertColorEverywhere.js';
@@ -85,11 +86,20 @@ export function activate(context: vscode.ExtensionContext): void {
     ),
 
     vscode.workspace.onDidChangeConfiguration((event) => {
+      if (event.affectsConfiguration('chromuta')) {
+        // Cached document scans were produced under the old settings, so a change to
+        // dialects or named colors would otherwise appear to have no effect until the
+        // file was edited.
+        clearDocumentScanCache();
+      }
       if (event.affectsConfiguration('chromuta.documentColor.excludeLanguages')) {
         registerColorProvider(context);
       }
-      if (event.affectsConfiguration('chromuta.confidenceThreshold')) {
-        // The threshold decides which group a color falls into, so the view is stale.
+      if (
+        event.affectsConfiguration('chromuta.confidenceThreshold') ||
+        event.affectsConfiguration('chromuta.defaultNotation')
+      ) {
+        // Both decide what the tree shows, without any index change to trigger it.
         palette.provider.refresh();
       }
     }),

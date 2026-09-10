@@ -43,9 +43,22 @@ export class ColorIndex implements vscode.Disposable {
   private readonly uris = new Map<string, vscode.Uri>();
   private readonly changeEmitter = new vscode.EventEmitter<void>();
 
+  /**
+   * Memoized grouping, keyed by threshold.
+   *
+   * Grouping walks every match in the workspace. The hover provider calls `find` on
+   * every hover and the tree calls `groups` for every expanded node, so without this
+   * a large repository pays a full regroup for each mouse movement.
+   */
+  private grouped = new Map<number, PaletteGroups>();
+
+  /** Incremented on every mutation, for tests and diagnostics. */
+  private groupComputations = 0;
+
   readonly onDidChange = this.changeEmitter.event;
 
   set(uri: vscode.Uri, matches: readonly IndexedMatch[]): void {
+    this.grouped.clear();
     const key = uri.toString();
     if (matches.length === 0) {
       // Keeping empty entries would grow the index with every file in the repo.
@@ -58,12 +71,14 @@ export class ColorIndex implements vscode.Disposable {
   }
 
   delete(uri: vscode.Uri): void {
+    this.grouped.clear();
     const key = uri.toString();
     this.files.delete(key);
     this.uris.delete(key);
   }
 
   clear(): void {
+    this.grouped.clear();
     this.files.clear();
     this.uris.clear();
   }
@@ -87,6 +102,21 @@ export class ColorIndex implements vscode.Disposable {
 
   /** Group every indexed match by color, splitting on the confidence threshold. */
   groups(threshold: number): PaletteGroups {
+    const cached = this.grouped.get(threshold);
+    if (cached) return cached;
+
+    const computed = this.computeGroups(threshold);
+    this.grouped.set(threshold, computed);
+    return computed;
+  }
+
+  /** How many times grouping has actually been computed, for the memoization test. */
+  get groupComputationCount(): number {
+    return this.groupComputations;
+  }
+
+  private computeGroups(threshold: number): PaletteGroups {
+    this.groupComputations++;
     const palette = new Map<string, Occurrence[]>();
     const review = new Map<string, Occurrence[]>();
 

@@ -1,5 +1,6 @@
-import { formatColor, isLossyConversion } from '../color/format.js';
-import type { FormatOptions } from '../color/types.js';
+import { isAnyOutputNotation, type AnyOutputNotation, type FormatOptions } from '../color/types.js';
+import { dialectOf } from '../dialects/registry.js';
+import { formatAny, isLossyAny } from '../notation.js';
 import type { ColorMatch } from '../detect/types.js';
 import { resolveColor, type CompiledMapping, type CompiledRule, type Replacement } from './resolve.js';
 
@@ -10,6 +11,8 @@ export interface PlannedEdit<M extends ColorMatch = ColorMatch> {
   /** Text that will replace it. */
   readonly to: string;
   readonly rule: CompiledRule;
+  /** Notation the replacement was written in. */
+  readonly notation: AnyOutputNotation;
   /** False when the rule matched within tolerance rather than exactly. */
   readonly exact: boolean;
   readonly distance: number;
@@ -107,7 +110,10 @@ export function buildPlan<M extends ColorMatch>(
       }
 
       const { rule, exact, distance } = resolution.replacement;
-      const to = formatColor(rule.to, rule.notation, input.formatOptions);
+
+      const notation = replacementNotation(match.notation, rule);
+
+      const to = formatAny(rule.to, notation, input.formatOptions);
 
       // A `named` target with no exact keyword yields null. Skipping is right: the
       // alternative is emitting hex under a rule that asked for a keyword.
@@ -116,11 +122,11 @@ export function buildPlan<M extends ColorMatch>(
         continue;
       }
 
-      const lossy = isLossyConversion(rule.to, rule.notation);
+      const lossy = isLossyAny(rule.to, notation);
       if (lossy) lossyCount++;
 
       usedRules.add(rule.index);
-      edits.push({ match, from: match.text, to, rule, exact, distance, lossy });
+      edits.push({ match, from: match.text, to, rule, notation, exact, distance, lossy });
     }
 
     if (edits.length > 0) {
@@ -146,6 +152,30 @@ export function buildPlan<M extends ColorMatch>(
     lossyCount,
     unusedRules
   };
+}
+
+/**
+ * Decide which notation a replacement is written in.
+ *
+ * A pinned `defaultNotation` always wins. Otherwise the replacement keeps the notation
+ * its `to` value was authored in, which is predictable: a mapping that says
+ * `"to": "#2563eb"` writes `#2563eb`.
+ *
+ * The exception is a platform literal. Writing `#2563eb` over a Dart
+ * `Color(0xFF3B82F6)` produces code that does not compile, so those keep the idiom of
+ * the site instead. Preserving CSS notations the same way was tried and is worse: a
+ * rule replacing the keyword `tomato` would try to write a keyword for a color that
+ * has none, and silently skip the edit.
+ */
+function replacementNotation(
+  matchNotation: ColorMatch['notation'],
+  rule: CompiledRule
+): AnyOutputNotation {
+  if (rule.pinned) return rule.notation;
+  if (dialectOf(matchNotation) !== 'css' && isAnyOutputNotation(matchNotation)) {
+    return matchNotation;
+  }
+  return rule.notation;
 }
 
 /**

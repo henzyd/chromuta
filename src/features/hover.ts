@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import { formatColor, isLossyConversion } from '../core/color/format.js';
+import { formatAny, isLossyAny, notationLabel, notationsForMatch } from '../core/notation.js';
 import { colorKey } from '../core/color/distance.js';
 import { matchAtOffset } from '../core/detect/scanText.js';
 import { readConfig } from '../config.js';
 import type { ColorIndex } from '../workspace/index.js';
-import { rangeOf, scanDocument } from './documentScan.js';
+import { dialectContextFor, rangeOf, scanDocument } from './documentScan.js';
 
 /**
  * A conversion table for the color under the cursor, plus how often it appears
@@ -35,15 +35,22 @@ export class ChromutaHoverProvider implements vscode.HoverProvider {
     // Required for the command link at the end to be clickable.
     markdown.isTrusted = true;
 
-    markdown.appendMarkdown(`**${match.text}** · \`${match.notation}\`\n\n`);
+    markdown.appendMarkdown(`**${match.text}** · ${notationLabel(match.notation)}\n\n`);
+
+    const notations = notationsForMatch(
+      match.notation,
+      dialectContextFor(document),
+      config.dialects,
+      config.notations
+    );
 
     const rows: string[] = [];
-    for (const notation of config.notations) {
+    for (const notation of notations) {
       if (notation === match.notation) continue;
-      const text = formatColor(match.color, notation, formatOptions);
+      const text = formatAny(match.color, notation, formatOptions);
       if (text === null) continue;
-      const lossy = isLossyConversion(match.color, notation) ? ' ⚠︎' : '';
-      rows.push(`| \`${notation}\` | \`${text}\`${lossy} |`);
+      const lossy = isLossyAny(match.color, notation) ? ' ⚠︎' : '';
+      rows.push(`| ${notationLabel(notation)} | \`${text}\` ${lossy}|`);
     }
 
     if (rows.length > 0) {

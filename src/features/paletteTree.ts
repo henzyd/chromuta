@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { formatColor } from '../core/color/format.js';
+import { formatAny, notationLabel } from '../core/notation.js';
 import { readConfig } from '../config.js';
 import type { ColorIndex, Occurrence, PaletteEntry } from '../workspace/index.js';
 import type { SwatchProvider } from './swatches.js';
@@ -89,8 +89,8 @@ export class PaletteTreeProvider implements vscode.TreeDataProvider<PaletteNode>
   private async colorItem(node: ColorNode): Promise<vscode.TreeItem> {
     const config = readConfig();
     const label =
-      formatColor(node.entry.color, config.defaultNotation, config.format) ??
-      formatColor(node.entry.color, 'hex', config.format) ??
+      formatAny(node.entry.color, config.defaultNotation, config.format) ??
+      formatAny(node.entry.color, 'hex', config.format) ??
       node.entry.key;
 
     const item = new vscode.TreeItem(label, vscode.TreeItemCollapsibleState.Collapsed);
@@ -144,7 +144,7 @@ function occurrenceItem(node: OccurrenceNode): vscode.TreeItem {
 
   const tooltip = new vscode.MarkdownString();
   tooltip.appendMarkdown(`\`${match.text}\` in \`${relative}\`\n\n`);
-  tooltip.appendMarkdown(`Notation: \`${match.notation}\` · confidence ${match.confidence.toFixed(2)}`);
+  tooltip.appendMarkdown(`${notationLabel(match.notation)} · confidence ${match.confidence.toFixed(2)}`);
   if (match.flags.length > 0) {
     tooltip.appendMarkdown(`\n\n${match.flags.map((f) => `- ${f}`).join('\n')}`);
   }
@@ -159,7 +159,7 @@ async function colorTooltip(
 ): Promise<vscode.MarkdownString> {
   const tooltip = new vscode.MarkdownString();
   for (const notation of config.notations) {
-    const text = formatColor(entry.color, notation, config.format);
+    const text = formatAny(entry.color, notation, config.format);
     if (text) tooltip.appendMarkdown(`\`${text}\`\n\n`);
   }
   tooltip.appendMarkdown(

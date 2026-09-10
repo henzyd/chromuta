@@ -1,6 +1,6 @@
 import { colorDistance, colorKey } from '../color/distance.js';
 import { parseColor } from '../color/parse.js';
-import type { Color, OutputNotation } from '../color/types.js';
+import type { AnyOutputNotation, Color } from '../color/types.js';
 import type { Mapping, MappingRule } from './schema.js';
 
 /** Distance below which two colors are considered the same value, not merely close. */
@@ -12,8 +12,13 @@ export interface CompiledRule {
   readonly raw: MappingRule;
   readonly from: Color;
   readonly to: Color;
-  /** Notation the replacement is written in. */
-  readonly notation: OutputNotation;
+  /** Fallback notation for the replacement, used when nothing better is available. */
+  readonly notation: AnyOutputNotation;
+  /**
+   * True when the mapping named a notation explicitly. Otherwise the replacement
+   * follows the notation of whatever literal it is replacing.
+   */
+  readonly pinned: boolean;
   readonly tolerance: number;
 }
 
@@ -53,9 +58,12 @@ export function compileMapping(mapping: Mapping): CompiledMapping {
       raw,
       from,
       to,
-      // With no mapping-level notation, each replacement keeps the notation it was
-      // authored in, so a mapping written in hex stays in hex.
-      notation: mapping.defaultNotation ?? (to.source?.notation as OutputNotation) ?? 'hex',
+      // With no mapping-level notation the planner writes each replacement in the
+      // notation of the literal it replaces, so a palette swap rewrites Dart colors as
+      // Dart and CSS as CSS. This value is only the fallback for when the matched
+      // notation cannot be written back.
+      notation: mapping.defaultNotation ?? (to.source?.notation as AnyOutputNotation) ?? 'hex',
+      pinned: mapping.defaultNotation !== undefined,
       tolerance: raw.tolerance ?? mapping.tolerance
     });
   });

@@ -1,8 +1,8 @@
 import * as vscode from 'vscode';
-import { formatColor } from '../../core/color/format.js';
+import { formatAny, notationsForMatch } from '../../core/notation.js';
 import { matchAtOffset } from '../../core/detect/scanText.js';
 import { readConfig } from '../../config.js';
-import { rangeOf, scanDocument } from '../documentScan.js';
+import { dialectContextFor, rangeOf, scanDocument } from '../documentScan.js';
 import { pickNotation } from './pickNotation.js';
 
 /** Convert the single color under the cursor, or every color inside a selection. */
@@ -42,7 +42,12 @@ export async function convertSelection(): Promise<void> {
   // when the selection is empty.
   const choice = await pickNotation(
     targets[0]!.color,
-    config.notations,
+    notationsForMatch(
+      targets[0]!.notation,
+      dialectContextFor(editor.document),
+      config.dialects,
+      config.notations
+    ),
     formatOptions,
     targets.length === 1 ? 'Convert color' : `Convert ${targets.length} colors`
   );
@@ -52,7 +57,7 @@ export async function convertSelection(): Promise<void> {
   let converted = 0;
 
   for (const match of targets) {
-    const text = formatColor(match.color, choice.notation, formatOptions);
+    const text = formatAny(match.color, choice.notation, formatOptions);
     if (text === null || text === match.text) continue;
     edit.replace(editor.document.uri, rangeOf(editor.document, match), text);
     converted++;

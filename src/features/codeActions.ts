@@ -1,10 +1,11 @@
 import * as vscode from 'vscode';
 import { colorKey } from '../core/color/distance.js';
-import { formatColor } from '../core/color/format.js';
+import { formatAny, notationLabel, notationsForMatch } from '../core/notation.js';
+import type { AnyOutputNotation, FormatOptions } from '../core/color/types.js';
 import type { ColorMatch } from '../core/detect/types.js';
 import { readConfig } from '../config.js';
 import type { ColorIndex } from '../workspace/index.js';
-import { rangeOf, scanDocument } from './documentScan.js';
+import { dialectContextFor, rangeOf, scanDocument } from './documentScan.js';
 
 /**
  * Quick fixes on the color under the cursor: convert this one, convert every
@@ -37,10 +38,17 @@ export class ChromutaCodeActionProvider implements vscode.CodeActionProvider {
     const actions: vscode.CodeAction[] = [];
     const key = colorKey(match.color);
 
-    for (const notation of config.notations) {
+    const notations = notationsForMatch(
+      match.notation,
+      dialectContextFor(document),
+      config.dialects,
+      config.notations
+    );
+
+    for (const notation of notations) {
       if (notation === match.notation) continue;
 
-      const text = formatColor(match.color, notation, formatOptions);
+      const text = formatAny(match.color, notation, formatOptions);
       if (text === null || text === match.text) continue;
 
       actions.push(
@@ -57,7 +65,7 @@ export class ChromutaCodeActionProvider implements vscode.CodeActionProvider {
             sameColor,
             notation,
             formatOptions,
-            `Convert all ${sameColor.length} in this file to ${notation}`
+            `Convert all ${sameColor.length} in this file to ${notationLabel(notation)}`
           )
         );
       }
@@ -96,15 +104,15 @@ function singleEdit(
 function multiEdit(
   document: vscode.TextDocument,
   matches: readonly ColorMatch[],
-  notation: Parameters<typeof formatColor>[1],
-  options: Parameters<typeof formatColor>[2],
+  notation: AnyOutputNotation,
+  options: FormatOptions,
   title: string
 ): vscode.CodeAction {
   const action = new vscode.CodeAction(title, vscode.CodeActionKind.RefactorRewrite);
   action.edit = new vscode.WorkspaceEdit();
 
   for (const match of matches) {
-    const text = formatColor(match.color, notation, options);
+    const text = formatAny(match.color, notation, options);
     if (text === null || text === match.text) continue;
     action.edit.replace(document.uri, rangeOf(document, match), text);
   }

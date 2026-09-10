@@ -36,7 +36,15 @@ const BY_EXTENSION: Readonly<Record<string, string>> = {
   '.md': 'markdown',
   '.markdown': 'markdown',
   '.xml': 'xml',
-  '.svg': 'xml'
+  '.svg': 'xml',
+  // Platform dialects.
+  '.dart': 'dart',
+  '.swift': 'swift',
+  '.kt': 'kotlin',
+  '.kts': 'kotlin',
+  '.java': 'java',
+  '.m': 'objective-c',
+  '.mm': 'objective-cpp'
 };
 
 export function languageIdForPath(filePath: string): string | undefined {

@@ -115,6 +115,13 @@ async function scanFile(
 
     const stat = await vscode.workspace.fs.stat(uri);
 
+    // A generated bundle or a data blob can be tens of megabytes and will not contain
+    // colors anyone wants to edit. Reading it would stall the scan for nothing.
+    if (stat.size > config.maxFileSize) {
+      log(`scan: skipped ${uri.fsPath}, ${stat.size} bytes exceeds chromuta.maxFileSize`);
+      return undefined;
+    }
+
     const cached = cache.get(uri, stat);
     if (cached) return { uri, matches: cached, fromCache: true };
 
@@ -141,7 +148,8 @@ export function scanContent(
   const matches = scanText(text, {
     languageId: languageId ?? languageIdForPath(uri.fsPath),
     filePath: vscode.workspace.asRelativePath(uri, false),
-    namedColors: config.namedColors
+    namedColors: config.namedColors,
+    dialects: config.dialects
   });
   return withPositions(matches, text);
 }
