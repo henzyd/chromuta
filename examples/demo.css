@@ -1,0 +1,30 @@
+/* Open this file in the Extension Development Host (F5) to exercise Phase 0.
+   Every literal below should get a swatch. Click one to convert it. */
+
+:root {
+  --brand: #3B82F6;
+  --brand-dark: #1e40af;
+  --surface: #fff;
+  --overlay: rgba(15, 23, 42, 0.72);
+  --accent: hsl(280 60% 55%);
+  --vivid: oklch(0.72 0.19 145);
+  --wide: oklch(0.7 0.35 150);         /* outside sRGB: conversion to hex warns */
+  --ink: lab(22 3 -14);
+  --p3: color(display-p3 0.95 0.2 0.1);
+  --keyword: tomato;
+  --clear: transparent;
+}
+
+.button {
+  color: var(--surface);
+  background: #3b82f6;                  /* same color as --brand, different casing */
+  border: 1px solid rgb(29 78 216);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
+}
+
+/* Near-misses. None of these should be offered for bulk conversion. */
+.notes {
+  /* #1234567 is seven digits, so it is not a color at all */
+  /* see commit #a1b2c3 for the original palette */
+  background-image: url("https://example.test/i.png#abc123");
+}
